@@ -21,7 +21,7 @@
     const db = getFirestore(app);
 
     async function loadRecipeDetails() {
-      // الحصول على معرف الوصفة من رابط الصفحة
+      // الحصول على معرّف الوصفة من رابط الصفحة
       const urlParams = new URLSearchParams(window.location.search);
       const recipeId = urlParams.get("id");
 
@@ -116,9 +116,6 @@
     <button class="support-button">💖 دعم الطاهي</button>
   </div>
 
-  <script>
-    // إذا كانت الصفحة محملة، نعرض تفاصيل الوصفة
-    loadRecipeDetails();
-  </script>
 </body>
 </html>
+
