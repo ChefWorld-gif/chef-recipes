@@ -61,11 +61,9 @@
 <div class="success" id="successMsg"></div>
 
 <script type="module">
-  // Firebase SDKs
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-  // إعدادات Firebase الخاصة بك
   const firebaseConfig = {
     apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
     authDomain: "chef-recipes-bf324.firebaseapp.com",
@@ -76,11 +74,9 @@
     measurementId: "G-VGDT2SK1TY"
   };
 
-  // تفعيل Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // التعامل مع النموذج
   document.getElementById("recipeForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -106,4 +102,3 @@
     }
   });
 </script>
-
