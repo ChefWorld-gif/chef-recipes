@@ -15,40 +15,44 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  document.getElementById("recipeForm").addEventListener("submit", async (e) => {
-    e.preventDefault(); // منع تحميل الصفحة
+  // استخدم event listener بعد تحميل DOM بشكل كامل
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("recipeForm").addEventListener("submit", async (e) => {
+      e.preventDefault(); // منع تحميل الصفحة
 
-    const chef = document.getElementById("chefName").value;
-    const title = document.getElementById("recipeTitle").value;
-    const description = document.getElementById("description").value;
-    const imageURL = document.getElementById("imageURL").value;
-    const videoURL = document.getElementById("videoURL").value;
+      const chef = document.getElementById("chefName").value;
+      const title = document.getElementById("recipeTitle").value;
+      const description = document.getElementById("description").value;
+      const imageURL = document.getElementById("imageURL").value;
+      const videoURL = document.getElementById("videoURL").value;
 
-    console.log("إرسال البيانات:", chef, title, description, imageURL, videoURL); // طباعة البيانات في الكونسول
+      console.log("إرسال البيانات:", chef, title, description, imageURL, videoURL); // طباعة البيانات في الكونسول
 
-    if (chef && title && description && imageURL) {
-      try {
-        const docRef = await addDoc(collection(db, "recipes"), {
-          chef,
-          title,
-          description,
-          imageURL,
-          videoURL,
-          createdAt: new Date()
-        });
+      if (chef && title && description && imageURL) {
+        try {
+          const docRef = await addDoc(collection(db, "recipes"), {
+            chef,
+            title,
+            description,
+            imageURL,
+            videoURL,
+            createdAt: new Date()
+          });
 
-        console.log("تم حفظ الوصفة بنجاح:", docRef.id); // طباعة معرف الوصفة
+          console.log("تم حفظ الوصفة بنجاح:", docRef.id); // طباعة معرف الوصفة
 
-        alert("✅ تم حفظ الوصفة بنجاح!");
-        document.getElementById("recipeForm").reset();
-      } catch (error) {
-        console.error("❌ خطأ في الحفظ:", error);
-        alert("حدث خطأ أثناء حفظ الوصفة.");
+          alert("✅ تم حفظ الوصفة بنجاح!");
+          document.getElementById("recipeForm").reset();
+        } catch (error) {
+          console.error("❌ خطأ في الحفظ:", error);
+          alert("حدث خطأ أثناء حفظ الوصفة.");
+        }
+      } else {
+        alert("❌ يرجى ملء جميع الحقول المطلوبة.");
       }
-    } else {
-      alert("❌ يرجى ملء جميع الحقول المطلوبة.");
-    }
+    });
   });
 </script>
+
 
 
