@@ -1,63 +1,120 @@
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>إضافة وصفة</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
-    authDomain: "chef-recipes-bf324.firebaseapp.com",
-    projectId: "chef-recipes-bf324",
-    storageBucket: "chef-recipes-bf324.appspot.com",
-    messagingSenderId: "218035207846",
-    appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
-    measurementId: "G-VGDT2SK1TY"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
+      authDomain: "chef-recipes-bf324.firebaseapp.com",
+      projectId: "chef-recipes-bf324",
+      storageBucket: "chef-recipes-bf324.appspot.com",
+      messagingSenderId: "218035207846",
+      appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
+      measurementId: "G-VGDT2SK1TY"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  // تأكد من تحميل الصفحة بشكل كامل أولاً
-  window.onload = () => {
-    const recipeForm = document.getElementById("recipeForm");
-    
-    if (recipeForm) {
-      recipeForm.addEventListener("submit", async (e) => {
-        e.preventDefault(); // منع إعادة تحميل الصفحة
+    // ننتظر تحميل الصفحة بالكامل قبل العمل
+    window.onload = () => {
+      const recipeForm = document.getElementById("recipeForm");
 
-        const chef = document.getElementById("chefName").value;
-        const title = document.getElementById("recipeTitle").value;
-        const description = document.getElementById("description").value;
-        const imageURL = document.getElementById("imageURL").value;
-        const videoURL = document.getElementById("videoURL").value;
+      if (recipeForm) {
+        recipeForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
 
-        console.log("إرسال البيانات:", chef, title, description, imageURL, videoURL); // طباعة البيانات في الكونسول
+          const chef = document.getElementById("chefName").value;
+          const title = document.getElementById("recipeTitle").value;
+          const description = document.getElementById("description").value;
+          const imageURL = document.getElementById("imageURL").value;
+          const videoURL = document.getElementById("videoURL").value;
 
-        if (chef && title && description && imageURL) {
-          try {
-            const docRef = await addDoc(collection(db, "recipes"), {
-              chef,
-              title,
-              description,
-              imageURL,
-              videoURL,
-              createdAt: new Date()
-            });
+          if (chef && title && description && imageURL) {
+            try {
+              await addDoc(collection(db, "recipes"), {
+                chef,
+                title,
+                description,
+                imageURL,
+                videoURL,
+                createdAt: new Date()
+              });
 
-            console.log("تم حفظ الوصفة بنجاح:", docRef.id); // طباعة معرف الوصفة
-
-            alert("✅ تم حفظ الوصفة بنجاح!");
-            recipeForm.reset();
-          } catch (error) {
-            console.error("❌ خطأ في الحفظ:", error);
-            alert("حدث خطأ أثناء حفظ الوصفة.");
+              document.getElementById("successMsg").textContent = "✅ تم حفظ الوصفة بنجاح!";
+              recipeForm.reset();
+            } catch (error) {
+              console.error("❌ خطأ في الحفظ:", error);
+              alert("حدث خطأ أثناء حفظ الوصفة.");
+            }
+          } else {
+            alert("يرجى تعبئة جميع الحقول المطلوبة.");
           }
-        } else {
-          alert("❌ يرجى ملء جميع الحقول المطلوبة.");
-        }
-      });
-    } else {
-      console.error("❌ لم يتم العثور على النموذج");
+        });
+      } else {
+        console.error("❌ لم يتم العثور على النموذج.");
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      background: #fff8f0;
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
     }
-  };
-</script>
 
+    h2 {
+      color: #e65100;
+      text-align: center;
+    }
 
+    input, textarea {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 15px;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      background-color: #ff7043;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .success {
+      color: green;
+      text-align: center;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📋 إضافة وصفة جديدة</h2>
+
+  <form id="recipeForm">
+    <input type="text" id="chefName" placeholder="اسم الطاهي" required />
+    <input type="text" id="recipeTitle" placeholder="اسم الوصفة" required />
+    <textarea id="description" placeholder="وصف الوصفة" required></textarea>
+    <input type="url" id="imageURL" placeholder="رابط صورة الطبق" required />
+    <input type="url" id="videoURL" placeholder="رابط فيديو (اختياري)" />
+    <button type="submit">إرسال</button>
+  </form>
+
+  <div class="success" id="successMsg"></div>
+
+</body>
+</html>
