@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>إضافة وصفة جديدة</title>
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      background-color: #fffaf0;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: #f57c00;
+    }
+
+    form {
+      max-width: 600px;
+      margin: auto;
+      background-color: #ffffff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: white;
+      padding: 0.8rem 1.2rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .result {
+      max-width: 600px;
+      margin: 2rem auto;
+      background-color: #e0f7fa;
+      padding: 1rem;
+      border-radius: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>➕ إضافة وصفة جديدة</h1>
+
+<form id="recipeForm">
+  <input type="text" id="title" placeholder="اسم الطبق" required>
+  <input type="text" id="image" placeholder="رابط صورة الطبق" required>
+  <textarea id="ingredients" placeholder="المكونات (كل مكون في سطر)" rows="5" required></textarea>
+  <textarea id="steps" placeholder="خطوات التحضير (كل خطوة في سطر)" rows="5" required></textarea>
+  <button type="submit">💾 حفظ الوصفة</button>
+</form>
+
+<div class="result" id="resultBox">
+  <h2>✅ تم إنشاء الوصفة:</h2>
+  <h3 id="rTitle"></h3>
+  <img id="rImage" src="" alt="صورة الطبق" style="width:100%; border-radius:10px; margin-bottom:1rem;">
+  <h4>المكونات:</h4>
+  <ul id="rIngredients"></ul>
+  <h4>الخطوات:</h4>
+  <ol id="rSteps"></ol>
+</div>
+
+<script>
+  const form = document.getElementById('recipeForm');
+  const resultBox = document.getElementById('resultBox');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const title = document.getElementById('title').value;
+    const image = document.getElementById('image').value;
+    const ingredients = document.getElementById('ingredients').value.split('\n');
+    const steps = document.getElementById('steps').value.split('\n');
+
+    document.getElementById('rTitle').textContent = title;
+    document.getElementById('rImage').src = image;
+
+    const ingList = document.getElementById('rIngredients');
+    ingList.innerHTML = '';
+    ingredients.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      ingList.appendChild(li);
+    });
+
+    const stepList = document.getElementById('rSteps');
+    stepList.innerHTML = '';
+    steps.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      stepList.appendChild(li);
+    });
+
+    resultBox.style.display = 'block';
+    form.reset();
+  });
+</script>
+
+</body>
+</html>
