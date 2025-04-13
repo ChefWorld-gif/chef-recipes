@@ -2,121 +2,99 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>موقع وصفات الطهاة</title>
+  <title>وصفات الطهاة</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
   <style>
     body {
       font-family: Tahoma, sans-serif;
-      margin: 0;
-      background-color: #fffaf0;
+      background-color: #fff8f0;
+      padding: 2rem;
     }
 
-    header {
-      background-color: #ff7043;
-      color: white;
-      padding: 1rem;
+    h1 {
       text-align: center;
-    }
-
-    nav {
-      background-color: #ffe0b2;
-      padding: 1rem;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    nav a {
-      text-decoration: none;
       color: #d84315;
-      background-color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      border: 1px solid #d84315;
-      transition: 0.3s;
     }
 
-    nav a:hover {
-      background-color: #d84315;
-      color: white;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 2rem auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
+    .recipe {
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
       padding: 1rem;
+      margin: 1rem 0;
+      background: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    .recipe-card {
-      background-color: white;
+    .recipe img {
+      max-width: 100%;
       border-radius: 10px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-      overflow: hidden;
-      text-align: center;
-      padding-bottom: 1rem;
+      margin-bottom: 0.5rem;
     }
 
-    .recipe-card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
+    .recipe h3 {
+      margin: 0.5rem 0;
+      color: #bf360c;
     }
 
-    .recipe-card h3 {
+    .recipe p {
       margin: 0.5rem 0;
     }
 
-    .support-btn {
-      background-color: #4caf50;
+    .support-button {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #ff7043;
       color: white;
-      padding: 0.4rem 1rem;
       border: none;
       border-radius: 5px;
-      cursor: pointer;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
 
-<header>
-  <h1>🌍 عالم وصفات الطهاة</h1>
-</header>
+<h1>🍲 وصفات الطهاة</h1>
 
-<nav>
-  <a href="#">🍽️ جميع الوصفات</a>
-  <a href="#">🇸🇦 المطبخ السعودي</a>
-  <a href="#">🇮🇹 المطبخ الإيطالي</a>
-  <a href="#">🍰 الحلويات</a>
-  <a href="#">🥤 مشروبات</a>
-</nav>
+<div id="recipesContainer"></div>
 
-<div class="container">
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
+    authDomain: "chef-recipes-bf324.firebaseapp.com",
+    projectId: "chef-recipes-bf324",
+    storageBucket: "chef-recipes-bf324.firebasestorage.app",
+    messagingSenderId: "218035207846",
+    appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
+    measurementId: "G-VGDT2SK1TY"
+  };
 
-  <div class="recipe-card">
-    <img src="https://i.imgur.com/t5CSd0C.jpg" alt="كبسة">
-    <h3>كبسة دجاج</h3>
-    <p>وصفة سعودية لذيذة وسهلة التحضير</p>
-    <button class="support-btn">💖 دعم الطاهي</button>
-  </div>
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-  <div class="recipe-card">
-    <img src="https://i.imgur.com/kFi5WYi.jpg" alt="تشيز كيك">
-    <h3>تشيز كيك</h3>
-    <p>تحلية باردة يعشقها الجميع!</p>
-    <button class="support-btn">💖 دعم الطاهي</button>
-  </div>
+  const container = document.getElementById("recipesContainer");
 
-  <div class="recipe-card">
-    <img src="https://i.imgur.com/58sJkpG.jpg" alt="عصير مانجو">
-    <h3>عصير مانجو</h3>
-    <p>مشروب صيفي منعش ☀️</p>
-    <button class="support-btn">💖 دعم الطاهي</button>
-  </div>
+  db.collection("recipes").onSnapshot((snapshot) => {
+    container.innerHTML = ""; // مسح المحتوى قبل التحديث
 
-</div>
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const recipeDiv = document.createElement("div");
+      recipeDiv.className = "recipe";
+
+      recipeDiv.innerHTML = `
+        <img src="${data.imageURL}" alt="صورة الوصفة">
+        <h3>${data.title} - 👨‍🍳 ${data.chefName}</h3>
+        <p>${data.description}</p>
+        ${data.videoURL ? `<p>🎥 <a href="${data.videoURL}" target="_blank">مشاهدة الفيديو</a></p>` : ""}
+        <a class="support-button" href="#">💖 دعم الطاهي</a>
+      `;
+
+      container.appendChild(recipeDiv);
+    });
+  });
+</script>
 
 </body>
 </html>
