@@ -1,65 +1,3 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <title>إضافة وصفة</title>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
-  <style>
-    body {
-      font-family: Tahoma, sans-serif;
-      background: #fff8f0;
-      max-width: 600px;
-      margin: auto;
-      padding: 2rem;
-    }
-
-    h2 {
-      color: #e65100;
-      text-align: center;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 0.8rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 15px;
-    }
-
-    button {
-      padding: 0.8rem 1.5rem;
-      background-color: #ff7043;
-      border: none;
-      color: white;
-      font-size: 16px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .success {
-      color: green;
-      text-align: center;
-      margin-top: 1rem;
-    }
-  </style>
-</head>
-<body>
-
-<h2>📋 إضافة وصفة جديدة</h2>
-
-<form id="recipeForm">
-  <input type="text" id="chefName" placeholder="اسم الطاهي" required />
-  <input type="text" id="recipeTitle" placeholder="اسم الوصفة" required />
-  <textarea id="description" placeholder="وصف الوصفة" required></textarea>
-  <input type="url" id="imageURL" placeholder="رابط صورة الطبق" required />
-  <input type="url" id="videoURL" placeholder="رابط فيديو (اختياري)" />
-  <button type="submit">إرسال</button>
-</form>
-
-<div class="success" id="successMsg"></div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -80,10 +18,11 @@
   document.getElementById("recipeForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const chef = document.getElementById("chef").value;
-    const title = document.getElementById("title").value;
+    const chef = document.getElementById("chefName").value;
+    const title = document.getElementById("recipeTitle").value;
     const description = document.getElementById("description").value;
     const imageURL = document.getElementById("imageURL").value;
+    const videoURL = document.getElementById("videoURL").value;
 
     try {
       await addDoc(collection(db, "recipes"), {
@@ -91,6 +30,7 @@
         title,
         description,
         imageURL,
+        videoURL,
         createdAt: new Date()
       });
 
