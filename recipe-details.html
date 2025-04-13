@@ -40,7 +40,21 @@
         document.getElementById("description").innerText = recipeData.description || "لا يوجد وصف مختصر";
         document.getElementById("image").src = recipeData.imageURL;
         document.getElementById("instructions").innerText = recipeData.instructions || "لا توجد طريقة تحضير";
-        document.getElementById("videoLink").href = recipeData.videoURL || "#";
+
+        // عرض الفيديو داخل <iframe> إذا كان الرابط موجودًا
+        const videoURL = recipeData.videoURL;
+        if (videoURL) {
+          const videoEmbed = document.createElement("iframe");
+          videoEmbed.src = videoURL;
+          videoEmbed.width = "100%";
+          videoEmbed.height = "315";
+          videoEmbed.frameborder = "0";
+          videoEmbed.allow = "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture";
+          videoEmbed.allowfullscreen = true;
+          document.getElementById("videoContainer").appendChild(videoEmbed);
+        } else {
+          document.getElementById("videoContainer").innerHTML = "<p>لا يوجد فيديو لهذه الوصفة.</p>";
+        }
       } else {
         document.getElementById("recipeTitle").innerText = "الوصفة غير موجودة";
       }
@@ -100,6 +114,11 @@
     .support-button:hover {
       background-color: #e64a19;
     }
+
+    iframe {
+      margin-top: 1rem;
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
@@ -112,10 +131,11 @@
     <p id="description"></p>
     <h2>طريقة التحضير:</h2>
     <p id="instructions"></p>
-    <a id="videoLink" href="#" target="_blank">🎥 مشاهدة الفيديو</a>
+
+    <div id="videoContainer"></div>
+
     <button class="support-button">💖 دعم الطاهي</button>
   </div>
 
 </body>
 </html>
-
