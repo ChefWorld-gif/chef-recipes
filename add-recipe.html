@@ -60,40 +60,50 @@
 
 <div class="success" id="successMsg"></div>
 
-<script>
+<script type="module">
+  // Firebase SDKs
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+  // إعدادات Firebase الخاصة بك
   const firebaseConfig = {
     apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
     authDomain: "chef-recipes-bf324.firebaseapp.com",
     projectId: "chef-recipes-bf324",
-    storageBucket: "chef-recipes-bf324.firebasestorage.app",
+    storageBucket: "chef-recipes-bf324.appspot.com",
     messagingSenderId: "218035207846",
     appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
     measurementId: "G-VGDT2SK1TY"
   };
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  // تفعيل Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-  document.getElementById("recipeForm").addEventListener("submit", async function (e) {
+  // التعامل مع النموذج
+  document.getElementById("recipeForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const recipe = {
-      chefName: document.getElementById("chefName").value,
-      title: document.getElementById("recipeTitle").value,
-      description: document.getElementById("description").value,
-      imageURL: document.getElementById("imageURL").value,
-      videoURL: document.getElementById("videoURL").value
-    };
+    const chef = document.getElementById("chef").value;
+    const title = document.getElementById("title").value;
+    const description = document.getElementById("description").value;
+    const imageURL = document.getElementById("imageURL").value;
 
     try {
-      await db.collection("recipes").add(recipe);
-      document.getElementById("successMsg").innerText = "✅ تم حفظ الوصفة بنجاح!";
+      await addDoc(collection(db, "recipes"), {
+        chef,
+        title,
+        description,
+        imageURL,
+        createdAt: new Date()
+      });
+
+      alert("✅ تم حفظ الوصفة بنجاح!");
       document.getElementById("recipeForm").reset();
     } catch (error) {
-      alert("حدث خطأ: " + error.message);
+      console.error("❌ خطأ في الحفظ:", error);
+      alert("حدث خطأ أثناء حفظ الوصفة.");
     }
   });
 </script>
 
-</body>
-</html>
