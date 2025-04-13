@@ -16,7 +16,7 @@
   const db = getFirestore(app);
 
   document.getElementById("recipeForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // منع تحميل الصفحة عند الإرسال
 
     const chef = document.getElementById("chefName").value;
     const title = document.getElementById("recipeTitle").value;
@@ -24,21 +24,26 @@
     const imageURL = document.getElementById("imageURL").value;
     const videoURL = document.getElementById("videoURL").value;
 
-    try {
-      await addDoc(collection(db, "recipes"), {
-        chef,
-        title,
-        description,
-        imageURL,
-        videoURL,
-        createdAt: new Date()
-      });
+    if (chef && title && description && imageURL) { // تحقق من أن جميع الحقول مكتملة
+      try {
+        await addDoc(collection(db, "recipes"), {
+          chef,
+          title,
+          description,
+          imageURL,
+          videoURL,
+          createdAt: new Date()
+        });
 
-      alert("✅ تم حفظ الوصفة بنجاح!");
-      document.getElementById("recipeForm").reset();
-    } catch (error) {
-      console.error("❌ خطأ في الحفظ:", error);
-      alert("حدث خطأ أثناء حفظ الوصفة.");
+        alert("✅ تم حفظ الوصفة بنجاح!");
+        document.getElementById("recipeForm").reset();
+      } catch (error) {
+        console.error("❌ خطأ في الحفظ:", error);
+        alert("حدث خطأ أثناء حفظ الوصفة.");
+      }
+    } else {
+      alert("❌ يرجى ملء جميع الحقول المطلوبة.");
     }
   });
 </script>
+
