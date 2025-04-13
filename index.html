@@ -2,101 +2,109 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>وصفات الطهاة</title>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <title>🍲 وصفات الطهاة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
+      authDomain: "chef-recipes-bf324.firebaseapp.com",
+      projectId: "chef-recipes-bf324",
+      storageBucket: "chef-recipes-bf324.appspot.com",
+      messagingSenderId: "218035207846",
+      appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
+      measurementId: "G-VGDT2SK1TY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadRecipes() {
+      const recipesCol = collection(db, "recipes");
+      const recipeSnapshot = await getDocs(recipesCol);
+      const container = document.getElementById("recipes");
+
+      recipeSnapshot.forEach((doc) => {
+        const data = doc.data();
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+          <img src="${data.imageURL}" alt="صورة الوصفة">
+          <h3>${data.recipeTitle}</h3>
+          <p class="chef">👨‍🍳 ${data.chefName}</p>
+          <p class="desc">${data.description || "لا يوجد وصف مختصر"}</p>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", loadRecipes);
+  </script>
 
   <style>
     body {
       font-family: Tahoma, sans-serif;
-      background-color: #fff8f0;
+      background: #fff8f0;
+      margin: 0;
       padding: 2rem;
     }
 
     h1 {
       text-align: center;
-      color: #d84315;
+      color: #e65100;
     }
 
-    .recipe {
-      border: 1px solid #e0e0e0;
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
       border-radius: 12px;
-      padding: 1rem;
-      margin: 1rem 0;
-      background: #ffffff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.3s;
     }
 
-    .recipe img {
-      max-width: 100%;
-      border-radius: 10px;
-      margin-bottom: 0.5rem;
+    .card:hover {
+      transform: translateY(-5px);
     }
 
-    .recipe h3 {
-      margin: 0.5rem 0;
-      color: #bf360c;
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
     }
 
-    .recipe p {
-      margin: 0.5rem 0;
+    .card h3 {
+      margin: 0.5rem 1rem 0 1rem;
+      font-size: 18px;
+      color: #e65100;
     }
 
-    .support-button {
-      display: inline-block;
-      margin-top: 0.5rem;
-      padding: 0.5rem 1rem;
-      background-color: #ff7043;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      text-decoration: none;
+    .card .chef {
+      font-size: 14px;
+      color: #666;
+      margin: 0.3rem 1rem 0 1rem;
+    }
+
+    .card .desc {
+      font-size: 15px;
+      padding: 0.5rem 1rem 1rem 1rem;
+      color: #444;
     }
   </style>
 </head>
 <body>
-
-<h1>🍲 وصفات الطهاة</h1>
-
-<div id="recipesContainer"></div>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
-    authDomain: "chef-recipes-bf324.firebaseapp.com",
-    projectId: "chef-recipes-bf324",
-    storageBucket: "chef-recipes-bf324.firebasestorage.app",
-    messagingSenderId: "218035207846",
-    appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
-    measurementId: "G-VGDT2SK1TY"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  const container = document.getElementById("recipesContainer");
-
-  db.collection("recipes").onSnapshot((snapshot) => {
-    container.innerHTML = ""; // مسح المحتوى قبل التحديث
-
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const recipeDiv = document.createElement("div");
-      recipeDiv.className = "recipe";
-
-      recipeDiv.innerHTML = `
-        <img src="${data.imageURL}" alt="صورة الوصفة">
-        <h3>${data.title} - 👨‍🍳 ${data.chefName}</h3>
-        <p>${data.description}</p>
-        ${data.videoURL ? `<p>🎥 <a href="${data.videoURL}" target="_blank">مشاهدة الفيديو</a></p>` : ""}
-        <a class="support-button" href="#">💖 دعم الطاهي</a>
-      `;
-
-      container.appendChild(recipeDiv);
-    });
-  });
-</script>
-
+  <h1>🍲 وصفات الطهاة</h1>
+  <div class="grid" id="recipes"></div>
 </body>
 </html>
-
