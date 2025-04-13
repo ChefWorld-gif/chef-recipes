@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تفاصيل الوصفة</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
+      authDomain: "chef-recipes-bf324.firebaseapp.com",
+      projectId: "chef-recipes-bf324",
+      storageBucket: "chef-recipes-bf324.appspot.com",
+      messagingSenderId: "218035207846",
+      appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
+      measurementId: "G-VGDT2SK1TY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadRecipeDetails() {
+      // الحصول على معرف الوصفة من رابط الصفحة
+      const urlParams = new URLSearchParams(window.location.search);
+      const recipeId = urlParams.get("id");
+
+      if (!recipeId) {
+        window.location.href = "/"; // العودة إلى الصفحة الرئيسية إذا كان الرابط غير صحيح
+        return;
+      }
+
+      const recipeRef = doc(db, "recipes", recipeId);
+      const recipeDoc = await getDoc(recipeRef);
+
+      if (recipeDoc.exists()) {
+        const recipeData = recipeDoc.data();
+        document.getElementById("recipeTitle").innerText = recipeData.recipeTitle;
+        document.getElementById("chefName").innerText = `👨‍🍳 ${recipeData.chefName || "الطاهي غير معرف"}`;
+        document.getElementById("description").innerText = recipeData.description || "لا يوجد وصف مختصر";
+        document.getElementById("image").src = recipeData.imageURL;
+        document.getElementById("instructions").innerText = recipeData.instructions || "لا توجد طريقة تحضير";
+        document.getElementById("videoLink").href = recipeData.videoURL || "#";
+      } else {
+        document.getElementById("recipeTitle").innerText = "الوصفة غير موجودة";
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", loadRecipeDetails);
+  </script>
+
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      background: #fff8f0;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1, h2 {
+      color: #e65100;
+      text-align: center;
+    }
+
+    .recipe-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .details {
+      margin-top: 1rem;
+    }
+
+    .details h2, .details p {
+      font-size: 16px;
+      color: #444;
+    }
+
+    .details p {
+      margin-top: 0.5rem;
+      line-height: 1.6;
+    }
+
+    .support-button {
+      background-color: #ff7043;
+      border: none;
+      color: white;
+      padding: 1rem;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .support-button:hover {
+      background-color: #e64a19;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 id="recipeTitle">... تحميل الوصفة...</h1>
+  <img id="image" class="recipe-image" src="" alt="صورة الوصفة">
+  
+  <div class="details">
+    <h2>👨‍🍳 <span id="chefName"></span></h2>
+    <p id="description"></p>
+    <h2>طريقة التحضير:</h2>
+    <p id="instructions"></p>
+    <a id="videoLink" href="#" target="_blank">🎥 مشاهدة الفيديو</a>
+    <button class="support-button">💖 دعم الطاهي</button>
+  </div>
+
+  <script>
+    // إذا كانت الصفحة محملة، نعرض تفاصيل الوصفة
+    loadRecipeDetails();
+  </script>
+</body>
+</html>
