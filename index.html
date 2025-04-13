@@ -2,135 +2,121 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>موقع وصفات الطهاة</title>
   <style>
     body {
-      font-family: 'Tahoma', sans-serif;
+      font-family: Tahoma, sans-serif;
       margin: 0;
-      background-color: #fff8f0;
-      color: #333;
+      background-color: #fffaf0;
     }
 
     header {
       background-color: #ff7043;
       color: white;
       padding: 1rem;
+      text-align: center;
+    }
+
+    nav {
+      background-color: #ffe0b2;
+      padding: 1rem;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: center;
       flex-wrap: wrap;
+      gap: 10px;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 1.5rem;
+    nav a {
+      text-decoration: none;
+      color: #d84315;
+      background-color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      border: 1px solid #d84315;
+      transition: 0.3s;
     }
 
-    nav select {
-      margin: 0 0.5rem;
-      padding: 0.4rem;
-      border-radius: 5px;
-      border: none;
+    nav a:hover {
+      background-color: #d84315;
+      color: white;
     }
 
-    .recipes {
+    .container {
+      max-width: 1000px;
+      margin: 2rem auto;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
+      gap: 1.5rem;
       padding: 1rem;
     }
 
-    .card {
-      background-color: #fff;
+    .recipe-card {
+      background-color: white;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
       overflow: hidden;
-      transition: transform 0.2s ease-in-out;
+      text-align: center;
+      padding-bottom: 1rem;
     }
 
-    .card:hover {
-      transform: scale(1.02);
-    }
-
-    .card img {
+    .recipe-card img {
       width: 100%;
-      height: 200px;
+      height: 180px;
       object-fit: cover;
     }
 
-    .card-content {
-      padding: 1rem;
-    }
-
-    .card-content h3 {
-      margin-top: 0;
+    .recipe-card h3 {
+      margin: 0.5rem 0;
     }
 
     .support-btn {
-      background-color: #ff7043;
+      background-color: #4caf50;
       color: white;
-      padding: 0.5rem 1rem;
+      padding: 0.4rem 1rem;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      margin-top: 0.5rem;
-    }
-
-    .support-btn:hover {
-      background-color: #e65100;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>👨‍🍳 وصفات الطهاة</h1>
-    <nav>
-      <select>
-        <option>نوع المطبخ</option>
-        <option>سعودي</option>
-        <option>إيطالي</option>
-        <option>هندي</option>
-      </select>
+<header>
+  <h1>🌍 عالم وصفات الطهاة</h1>
+</header>
 
-      <select>
-        <option>نوع الطعام</option>
-        <option>أطباق رئيسية</option>
-        <option>حلويات</option>
-        <option>مشروبات</option>
-      </select>
-    </nav>
-  </header>
+<nav>
+  <a href="#">🍽️ جميع الوصفات</a>
+  <a href="#">🇸🇦 المطبخ السعودي</a>
+  <a href="#">🇮🇹 المطبخ الإيطالي</a>
+  <a href="#">🍰 الحلويات</a>
+  <a href="#">🥤 مشروبات</a>
+</nav>
 
-  <section class="recipes">
-    <div class="card">
-      <img src="https://source.unsplash.com/400x300/?food" alt="وصفة">
-      <div class="card-content">
-        <h3>كبسة دجاج</h3>
-        <p>وصفة سعودية شهية وسهلة التحضير.</p>
-        <button class="support-btn">💖 دعم الطاهي</button>
-      </div>
-    </div>
+<div class="container">
 
-    <div class="card">
-      <img src="https://source.unsplash.com/400x301/?dessert" alt="وصفة">
-      <div class="card-content">
-        <h3>تشيز كيك</h3>
-        <p>تحلية لذيذة يعشقها الجميع!</p>
-        <button class="support-btn">💖 دعم الطاهي</button>
-      </div>
-    </div>
+  <div class="recipe-card">
+    <img src="https://i.imgur.com/t5CSd0C.jpg" alt="كبسة">
+    <h3>كبسة دجاج</h3>
+    <p>وصفة سعودية لذيذة وسهلة التحضير</p>
+    <button class="support-btn">💖 دعم الطاهي</button>
+  </div>
 
-    <div class="card">
-      <img src="https://source.unsplash.com/400x302/?drink" alt="وصفة">
-      <div class="card-content">
-        <h3>عصير مانجو</h3>
-        <p>عصير منعش لفصل الصيف ☀️</p>
-        <button class="support-btn">💖 دعم الطاهي</button>
-      </div>
-    </div>
-  </section>
+  <div class="recipe-card">
+    <img src="https://i.imgur.com/kFi5WYi.jpg" alt="تشيز كيك">
+    <h3>تشيز كيك</h3>
+    <p>تحلية باردة يعشقها الجميع!</p>
+    <button class="support-btn">💖 دعم الطاهي</button>
+  </div>
+
+  <div class="recipe-card">
+    <img src="https://i.imgur.com/58sJkpG.jpg" alt="عصير مانجو">
+    <h3>عصير مانجو</h3>
+    <p>مشروب صيفي منعش ☀️</p>
+    <button class="support-btn">💖 دعم الطاهي</button>
+  </div>
+
+</div>
 
 </body>
 </html>
