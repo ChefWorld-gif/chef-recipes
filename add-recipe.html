@@ -2,26 +2,21 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>إضافة وصفة جديدة</title>
+  <title>إضافة وصفة</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
   <style>
     body {
       font-family: Tahoma, sans-serif;
-      background-color: #fffaf0;
-      padding: 2rem;
-    }
-
-    h1 {
-      text-align: center;
-      color: #f57c00;
-    }
-
-    form {
+      background: #fff8f0;
       max-width: 600px;
       margin: auto;
-      background-color: #ffffff;
       padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #e65100;
+      text-align: center;
     }
 
     input, textarea {
@@ -30,84 +25,73 @@
       margin-bottom: 1rem;
       border: 1px solid #ccc;
       border-radius: 5px;
-      font-size: 1rem;
+      font-size: 15px;
     }
 
     button {
-      background-color: #4caf50;
-      color: white;
-      padding: 0.8rem 1.2rem;
+      padding: 0.8rem 1.5rem;
+      background-color: #ff7043;
       border: none;
+      color: white;
+      font-size: 16px;
       border-radius: 5px;
-      font-size: 1rem;
       cursor: pointer;
     }
 
-    .result {
-      max-width: 600px;
-      margin: 2rem auto;
-      background-color: #e0f7fa;
-      padding: 1rem;
-      border-radius: 10px;
-      display: none;
+    .success {
+      color: green;
+      text-align: center;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
 
-<h1>➕ إضافة وصفة جديدة</h1>
+<h2>📋 إضافة وصفة جديدة</h2>
 
 <form id="recipeForm">
-  <input type="text" id="title" placeholder="اسم الطبق" required>
-  <input type="text" id="image" placeholder="رابط صورة الطبق" required>
-  <textarea id="ingredients" placeholder="المكونات (كل مكون في سطر)" rows="5" required></textarea>
-  <textarea id="steps" placeholder="خطوات التحضير (كل خطوة في سطر)" rows="5" required></textarea>
-  <button type="submit">💾 حفظ الوصفة</button>
+  <input type="text" id="chefName" placeholder="اسم الطاهي" required />
+  <input type="text" id="recipeTitle" placeholder="اسم الوصفة" required />
+  <textarea id="description" placeholder="وصف الوصفة" required></textarea>
+  <input type="url" id="imageURL" placeholder="رابط صورة الطبق" required />
+  <input type="url" id="videoURL" placeholder="رابط فيديو (اختياري)" />
+  <button type="submit">إرسال</button>
 </form>
 
-<div class="result" id="resultBox">
-  <h2>✅ تم إنشاء الوصفة:</h2>
-  <h3 id="rTitle"></h3>
-  <img id="rImage" src="" alt="صورة الطبق" style="width:100%; border-radius:10px; margin-bottom:1rem;">
-  <h4>المكونات:</h4>
-  <ul id="rIngredients"></ul>
-  <h4>الخطوات:</h4>
-  <ol id="rSteps"></ol>
-</div>
+<div class="success" id="successMsg"></div>
 
 <script>
-  const form = document.getElementById('recipeForm');
-  const resultBox = document.getElementById('resultBox');
+  const firebaseConfig = {
+    apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
+    authDomain: "chef-recipes-bf324.firebaseapp.com",
+    projectId: "chef-recipes-bf324",
+    storageBucket: "chef-recipes-bf324.firebasestorage.app",
+    messagingSenderId: "218035207846",
+    appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
+    measurementId: "G-VGDT2SK1TY"
+  };
 
-  form.addEventListener('submit', function(e) {
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  document.getElementById("recipeForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    const title = document.getElementById('title').value;
-    const image = document.getElementById('image').value;
-    const ingredients = document.getElementById('ingredients').value.split('\n');
-    const steps = document.getElementById('steps').value.split('\n');
+    const recipe = {
+      chefName: document.getElementById("chefName").value,
+      title: document.getElementById("recipeTitle").value,
+      description: document.getElementById("description").value,
+      imageURL: document.getElementById("imageURL").value,
+      videoURL: document.getElementById("videoURL").value
+    };
 
-    document.getElementById('rTitle').textContent = title;
-    document.getElementById('rImage').src = image;
-
-    const ingList = document.getElementById('rIngredients');
-    ingList.innerHTML = '';
-    ingredients.forEach(item => {
-      const li = document.createElement('li');
-      li.textContent = item;
-      ingList.appendChild(li);
-    });
-
-    const stepList = document.getElementById('rSteps');
-    stepList.innerHTML = '';
-    steps.forEach(item => {
-      const li = document.createElement('li');
-      li.textContent = item;
-      stepList.appendChild(li);
-    });
-
-    resultBox.style.display = 'block';
-    form.reset();
+    try {
+      await db.collection("recipes").add(recipe);
+      document.getElementById("successMsg").innerText = "✅ تم حفظ الوصفة بنجاح!";
+      document.getElementById("recipeForm").reset();
+    } catch (error) {
+      alert("حدث خطأ: " + error.message);
+    }
   });
 </script>
 
