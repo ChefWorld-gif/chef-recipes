@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>إضافة وصفة</title>
   <script type="module">
+    // استيراد Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
@@ -20,45 +21,38 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // ننتظر تحميل الصفحة بالكامل قبل العمل
-    window.onload = () => {
-      const recipeForm = document.getElementById("recipeForm");
+    window.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById("recipeForm");
 
-      if (recipeForm) {
-        recipeForm.addEventListener("submit", async (e) => {
-          e.preventDefault();
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-          const chef = document.getElementById("chefName").value;
-          const title = document.getElementById("recipeTitle").value;
-          const description = document.getElementById("description").value;
-          const imageURL = document.getElementById("imageURL").value;
-          const videoURL = document.getElementById("videoURL").value;
+        const chefName = document.getElementById("chefName").value;
+        const recipeTitle = document.getElementById("recipeTitle").value;
+        const description = document.getElementById("description").value;
+        const steps = document.getElementById("steps").value;
+        const imageURL = document.getElementById("imageURL").value;
+        const videoURL = document.getElementById("videoURL").value;
 
-          if (chef && title && description && imageURL) {
-            try {
-              await addDoc(collection(db, "recipes"), {
-                chef,
-                title,
-                description,
-                imageURL,
-                videoURL,
-                createdAt: new Date()
-              });
+        try {
+          await addDoc(collection(db, "recipes"), {
+            chefName,
+            recipeTitle,
+            description,
+            steps,
+            imageURL,
+            videoURL,
+            createdAt: new Date()
+          });
 
-              document.getElementById("successMsg").textContent = "✅ تم حفظ الوصفة بنجاح!";
-              recipeForm.reset();
-            } catch (error) {
-              console.error("❌ خطأ في الحفظ:", error);
-              alert("حدث خطأ أثناء حفظ الوصفة.");
-            }
-          } else {
-            alert("يرجى تعبئة جميع الحقول المطلوبة.");
-          }
-        });
-      } else {
-        console.error("❌ لم يتم العثور على النموذج.");
-      }
-    };
+          document.getElementById("successMsg").textContent = "✅ تم حفظ الوصفة بنجاح!";
+          form.reset();
+        } catch (error) {
+          console.error("❌ خطأ في الحفظ:", error);
+          alert("حدث خطأ أثناء حفظ الوصفة.");
+        }
+      });
+    });
   </script>
 
   <style>
@@ -102,19 +96,19 @@
   </style>
 </head>
 <body>
-
   <h2>📋 إضافة وصفة جديدة</h2>
 
   <form id="recipeForm">
     <input type="text" id="chefName" placeholder="اسم الطاهي" required />
     <input type="text" id="recipeTitle" placeholder="اسم الوصفة" required />
-    <textarea id="description" placeholder="وصف الوصفة" required></textarea>
+    <textarea id="description" placeholder="وصف مختصر (اختياري)" rows="3"></textarea>
+    <textarea id="steps" placeholder="طريقة التحضير" rows="5" required></textarea>
     <input type="url" id="imageURL" placeholder="رابط صورة الطبق" required />
     <input type="url" id="videoURL" placeholder="رابط فيديو (اختياري)" />
     <button type="submit">إرسال</button>
   </form>
 
   <div class="success" id="successMsg"></div>
-
 </body>
 </html>
+
