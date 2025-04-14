@@ -21,18 +21,17 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  document.getElementById("loginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    window.location.href = "chef-dashboard.html"; // إعادة التوجيه
+  } catch (error) {
+    alert("❌ فشل تسجيل الدخول: " + error.message);
+  }
+});
 
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // ✅ إعادة التوجيه بعد تسجيل الدخول
-      window.location.href = "chef-dashboard.html";
-    } catch (error) {
-      alert("❌ فشل تسجيل الدخول: " + error.message);
-    }
-  });
 </script>
