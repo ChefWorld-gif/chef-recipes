@@ -6,6 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recipe Details</title>
   <link rel="stylesheet" href="styles.css">
+  <!-- Add Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 
 <body>
@@ -16,39 +19,92 @@
     </a>
   </header>
 
-  <div id="recipe-details">
+  <main id="recipe-details">
     <!-- Recipe details will be loaded here -->
-  </div>
+    <div class="loading">Loading recipe...</div>
+  </main>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const recipeId = params.get('id');
+    // Initialize Firebase (replace with your config)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const recipeId = params.get('id');
 
-    if (recipeId) {
-      firebase.firestore().collection('recipes').doc(recipeId).get().then(doc => {
-        if (doc.exists) {
-          const recipe = doc.data();
+      if (!recipeId) {
+        document.getElementById('recipe-details').innerHTML = `
+          <div class="error">No recipe ID provided. Please go back to the recipes list.</div>
+        `;
+        return;
+      }
+
+      firebase.firestore().collection('recipes').doc(recipeId).get()
+        .then(doc => {
           const recipeDetails = document.getElementById('recipe-details');
+          
+          if (!doc.exists) {
+            recipeDetails.innerHTML = `
+              <div class="error">Recipe not found. It may have been removed.</div>
+            `;
+            return;
+          }
+
+          const recipe = doc.data();
           recipeDetails.innerHTML = `
-            <h1>${recipe.title}</h1>
-            <img src="${recipe.imageUrl}" alt="${recipe.title}">
-            <p><strong>By:</strong> ${recipe.chefName}</p>
-            <p>${recipe.description}</p>
-            <p><strong>Preparation:</strong> ${recipe.preparation}</p>
-            <p><strong>Type:</strong> ${recipe.type}</p>
-            <p><strong>Cuisine:</strong> ${recipe.cuisine}</p>
-            <p><strong>Video:</strong> <a href="${recipe.videoUrl}">Watch Video</a></p>
-            <button onclick="window.location.href='chef-profile.html?chefId=${recipe.chefId}'">Visit Chef's Page</button>
+            <div class="recipe-header">
+              <h1>${recipe.title || 'No title'}</h1>
+              <p class="chef-name"><strong>By:</strong> ${recipe.chefName || 'Unknown chef'}</p>
+            </div>
+            
+            <div class="recipe-image">
+              <img src="${recipe.imageUrl || 'placeholder.jpg'}" alt="${recipe.title || 'Recipe image'}">
+            </div>
+            
+            <div class="recipe-meta">
+              <p><strong>Type:</strong> ${recipe.type || 'Not specified'}</p>
+              <p><strong>Cuisine:</strong> ${recipe.cuisine || 'Not specified'}</p>
+            </div>
+            
+            <div class="recipe-description">
+              <h2>Description</h2>
+              <p>${recipe.description || 'No description available.'}</p>
+            </div>
+            
+            <div class="recipe-preparation">
+              <h2>Preparation</h2>
+              <p>${recipe.preparation || 'No preparation details available.'}</p>
+            </div>
+            
+            ${recipe.videoUrl ? `
+            <div class="recipe-video">
+              <h2>Video Tutorial</h2>
+              <a href="${recipe.videoUrl}" target="_blank">Watch Video</a>
+            </div>
+            ` : ''}
+            
+            <button class="chef-btn" onclick="window.location.href='chef-profile.html?chefId=${recipe.chefId || ''}'">
+              Visit Chef's Page
+            </button>
           `;
-        } else {
-          alert('Recipe not found');
-        }
-      }).catch(error => {
-        console.error('Error getting recipe:', error);
-      });
-    } else {
-      alert('No recipe ID provided');
-    }
+        })
+        .catch(error => {
+          console.error('Error getting recipe:', error);
+          document.getElementById('recipe-details').innerHTML = `
+            <div class="error">Failed to load recipe. Please try again later.</div>
+          `;
+        });
+    });
   </script>
 </body>
 
