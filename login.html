@@ -6,25 +6,33 @@
 </form>
 
 <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-  const auth = getAuth();
+  const firebaseConfig = {
+    apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
+    authDomain: "chef-recipes-bf324.firebaseapp.com",
+    projectId: "chef-recipes-bf324",
+    storageBucket: "chef-recipes-bf324.appspot.com",
+    messagingSenderId: "218035207846",
+    appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
   document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
+
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      alert("تم تسجيل الدخول بنجاح!");
-
-      // بعد تسجيل الدخول بنجاح، توجيه الطاهي إلى صفحة إضافة الوصفات
-      window.location.href = "/add-recipe.html";  // أو صفحة أخرى مخصصة للطهاة
+      await signInWithEmailAndPassword(auth, email, password);
+      // ✅ إعادة التوجيه بعد تسجيل الدخول
+      window.location.href = "chef-dashboard.html";
     } catch (error) {
-      console.error("❌ خطأ في تسجيل الدخول:", error);
-      alert("حدث خطأ أثناء تسجيل الدخول.");
+      alert("❌ فشل تسجيل الدخول: " + error.message);
     }
   });
 </script>
