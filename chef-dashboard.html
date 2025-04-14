@@ -66,7 +66,7 @@
 </head>
 <body>
 
-<h2>مرحباً بك، [اسم الطاهي]</h2>
+<h2>مرحباً بك، <span id="chefName">الطاهي</span></h2>
 
 <div class="recipe-list" id="recipeList"></div>
 
@@ -77,12 +77,23 @@
   const db = getFirestore();
   const auth = getAuth();
 
-  // جلب الوصفات للطاهي
-  async function loadRecipes() {
-    const user = auth.currentUser;
+  // التأكد من تسجيل دخول المستخدم
+  auth.onAuthStateChanged(async (user) => {
     if (user) {
+      // إذا كان الطاهي مسجلاً دخوله
+      document.getElementById('chefName').textContent = user.displayName || "الطاهي";
+      loadRecipes(user.uid);
+    } else {
+      alert("يجب أن تسجل الدخول أولاً");
+      window.location.href = "login.html"; // إعادة التوجيه إلى صفحة تسجيل الدخول
+    }
+  });
+
+  // جلب الوصفات للطاهي
+  async function loadRecipes(userId) {
+    try {
       const recipesRef = collection(db, "recipes");
-      const q = query(recipesRef, where("chefId", "==", user.uid));
+      const q = query(recipesRef, where("chefId", "==", userId));
       const querySnapshot = await getDocs(q);
 
       const recipeList = document.getElementById("recipeList");
@@ -104,11 +115,16 @@
 
         recipeList.appendChild(recipeCard);
       });
+    } catch (error) {
+      console.error("حدث خطأ في تحميل الوصفات:", error);
+      alert("حدث خطأ أثناء تحميل الوصفات.");
     }
   }
-
-  window.onload = loadRecipes;
 </script>
+
+</body>
+</html>
+
 
 </body>
 </html>
