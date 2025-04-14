@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>وصفاتي</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js" type="module"></script>
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      background: #fffaf3;
+      padding: 2rem;
+    }
+
+    h2 {
+      color: #d35400;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 0.5rem;
+    }
+
+    ul {
+      list-style: none;
+      padding-right: 0;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      color: #333;
+      padding: 0.3rem 0.5rem;
+      border-radius: 5px;
+      background: #f7f7f7;
+      transition: 0.2s;
+    }
+
+    li:hover {
+      background: #ffe0c0;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📋 وصفاتي</h1>
+
+<h2>🍽️ مأكولات</h2>
+<ul id="meals-list"></ul>
+
+<h2>🍰 حلوى</h2>
+<ul id="desserts-list"></ul>
+
+<h2>🥤 مشروبات</h2>
+<ul id="drinks-list"></ul>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
+    authDomain: "chef-recipes-bf324.firebaseapp.com",
+    projectId: "chef-recipes-bf324",
+    storageBucket: "chef-recipes-bf324.appspot.com",
+    messagingSenderId: "218035207846",
+    appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
+    measurementId: "G-VGDT2SK1TY"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function loadRecipes() {
+    const querySnapshot = await getDocs(collection(db, "recipes"));
+
+    querySnapshot.forEach(doc => {
+      const recipe = doc.data();
+      const listId = recipe.category === "حلوى" ? "desserts-list"
+                   : recipe.category === "مشروب" ? "drinks-list"
+                   : "meals-list";
+
+      const li = document.createElement("li");
+      li.textContent = recipe.title;
+      li.onclick = () => {
+        // ننقل إلى صفحة التعديل مع معرف الوصفة
+        window.location.href = `edit-recipe.html?id=${doc.id}`;
+      };
+
+      document.getElementById(listId).appendChild(li);
+    });
+  }
+
+  loadRecipes();
+</script>
+
+</body>
+</html>
