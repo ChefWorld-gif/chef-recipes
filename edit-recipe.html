@@ -3,71 +3,104 @@
 <head>
   <meta charset="UTF-8">
   <title>تعديل الوصفة</title>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
-</head>
-<body>
-  <h2>تعديل الوصفة</h2>
-
-  <form id="editRecipeForm">
-    <input type="text" id="recipeTitle" placeholder="اسم الوصفة" required />
-    <textarea id="recipeDescription" placeholder="وصف الوصفة" required></textarea>
-    <input type="url" id="recipeImage" placeholder="رابط صورة الطبق" required />
-    <input type="url" id="recipeVideo" placeholder="رابط الفيديو" />
-    <button type="submit">حفظ التعديلات</button>
-  </form>
-
-  <script type="module">
-    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-
-    const db = getFirestore();
-    const auth = getAuth();
-
-    // جلب معرّف الوصفة من الرابط
-    const urlParams = new URLSearchParams(window.location.search);
-    const recipeId = urlParams.get("recipeId");
-
-    // جلب بيانات الوصفة من قاعدة البيانات
-    async function loadRecipe() {
-      if (recipeId) {
-        const recipeDoc = await getDoc(doc(db, "recipes", recipeId));
-        if (recipeDoc.exists()) {
-          const recipeData = recipeDoc.data();
-          document.getElementById("recipeTitle").value = recipeData.title;
-          document.getElementById("recipeDescription").value = recipeData.description;
-          document.getElementById("recipeImage").value = recipeData.imageURL;
-          document.getElementById("recipeVideo").value = recipeData.videoURL;
-        }
-      }
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      background: #fff8f0;
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
     }
 
-    // حفظ التعديلات
-    document.getElementById("editRecipeForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (recipeId) {
-        const title = document.getElementById("recipeTitle").value;
-        const description = document.getElementById("recipeDescription").value;
-        const imageURL = document.getElementById("recipeImage").value;
-        const videoURL = document.getElementById("recipeVideo").value;
+    h2 {
+      color: #e65100;
+      text-align: center;
+    }
 
-        try {
-          await updateDoc(doc(db, "recipes", recipeId), {
-            title,
-            description,
-            imageURL,
-            videoURL
-          });
-          alert("تم حفظ التعديلات بنجاح!");
-        } catch (error) {
-          alert("حدث خطأ أثناء حفظ التعديلات.");
-        }
-      }
-    });
+    input, textarea {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 15px;
+    }
 
-    // تحميل الوصفة عند فتح الصفحة
-    window.onload = loadRecipe;
-  </script>
+    button {
+      padding: 0.8rem 1.5rem;
+      background-color: #ff7043;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #e65100;
+    }
+
+  </style>
+</head>
+<body>
+
+<h2>تعديل الوصفة</h2>
+
+<form id="editRecipeForm">
+  <input type="text" id="recipeTitle" placeholder="اسم الوصفة" required />
+  <textarea id="recipeDescription" placeholder="وصف الوصفة" required></textarea>
+  <input type="url" id="recipeImage" placeholder="رابط صورة الطبق" required />
+  <input type="url" id="recipeVideo" placeholder="رابط الفيديو" />
+  <button type="submit">حفظ التعديلات</button>
+</form>
+
+<script type="module">
+  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+  const db = getFirestore();
+  const auth = getAuth();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const recipeId = urlParams.get("recipeId");
+
+  // جلب بيانات الوصفة
+  async function loadRecipe() {
+    const recipeDoc = await getDoc(doc(db, "recipes", recipeId));
+    if (recipeDoc.exists()) {
+      const recipeData = recipeDoc.data();
+      document.getElementById("recipeTitle").value = recipeData.title;
+      document.getElementById("recipeDescription").value = recipeData.description;
+      document.getElementById("recipeImage").value = recipeData.imageURL;
+      document.getElementById("recipeVideo").value = recipeData.videoURL;
+    }
+  }
+
+  // حفظ التعديلات
+  document.getElementById("editRecipeForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const title = document.getElementById("recipeTitle").value;
+    const description = document.getElementById("recipeDescription").value;
+    const imageURL = document.getElementById("recipeImage").value;
+    const videoURL = document.getElementById("recipeVideo").value;
+
+    try {
+      await updateDoc(doc(db, "recipes", recipeId), {
+        title,
+        description,
+        imageURL,
+        videoURL
+      });
+      alert("تم حفظ التعديلات بنجاح!");
+      window.location.href = "dashboard.html"; // العودة إلى لوحة التحكم بعد الحفظ
+    } catch (error) {
+      alert("حدث خطأ أثناء حفظ التعديلات.");
+    }
+  });
+
+  window.onload = loadRecipe;
+</script>
+
 </body>
 </html>
