@@ -4,162 +4,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chef Recipes</title>
+  <title>Recipe Details</title>
   <link rel="stylesheet" href="styles.css">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f8f8f8;
-    }
-    header {
-      background-color: #ffffff;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-    .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #ff7043;
-    }
-    .login-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background-color: #ff7043;
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 999px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-    .login-btn:hover {
-      background-color: #ff5722;
-    }
-    .icon {
-      width: 20px;
-      height: 20px;
-    }
-    .filters {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      padding: 1rem;
-      flex-wrap: wrap;
-    }
-    .filters input, .filters select {
-      padding: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      min-width: 200px;
-    }
-    .recipes-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
-      padding: 1rem 2rem;
-    }
-    .recipe-card {
-      background-color: white;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      transition: transform 0.2s;
-      cursor: pointer;
-    }
-    .recipe-card:hover {
-      transform: translateY(-4px);
-    }
-    .recipe-card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-    }
-    .recipe-card .info {
-      padding: 1rem;
-    }
-    .recipe-card .info h3 {
-      margin: 0 0 0.5rem;
-    }
-    .recipe-card .info small {
-      color: #888;
-    }
-  </style>
 </head>
 
 <body>
   <header>
     <div class="logo">Chef Recipes</div>
     <a href="login.html" class="login-btn">
-      <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H3m0 0l4-4m-4 4l4 4m6 4h6a2 2 0 002-2V6a2 2 0 00-2-2h-6" />
-      </svg>
       <span>Sign In</span>
     </a>
   </header>
 
-  <div class="filters">
-    <input type="text" id="searchInput" placeholder="Search for a recipe...">
-    <select id="typeFilter">
-      <option value="">All Types</option>
-      <option value="Food">Food</option>
-      <option value="Dessert">Dessert</option>
-      <option value="Drink">Drink</option>
-    </select>
-    <select id="cuisineFilter">
-      <option value="">All Cuisines</option>
-      <option value="Italian">Italian</option>
-      <option value="Arabic">Arabic</option>
-      <option value="Asian">Asian</option>
-    </select>
-  </div>
-
-  <div class="recipes-grid" id="recipes-container">
-    <!-- Recipes will be loaded here by JS -->
+  <div id="recipe-details">
+    <!-- Recipe details will be loaded here -->
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      const db = firebase.firestore();
-      const container = document.getElementById("recipes-container");
+    const params = new URLSearchParams(window.location.search);
+    const recipeId = params.get('id');
 
-      const snapshot = await db.collection("recipes").get();
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const card = document.createElement("div");
-        card.className = "recipe-card";
-        card.innerHTML = `
-          <img src="${data.imageUrl}" alt="Recipe Image">
-          <div class="info">
-            <h3>${data.title}</h3>
-            <small>👨‍🍳 ${data.chefName || 'Unknown Chef'}</small>
-            <p>${(data.description || '').substring(0, 70)}...</p>
-          </div>
-        `;
-        card.addEventListener("click", () => {
-          window.location.href = `recipe-details.html?id=${doc.id}`;
-        });
-        container.appendChild(card);
+    if (recipeId) {
+      firebase.firestore().collection('recipes').doc(recipeId).get().then(doc => {
+        if (doc.exists) {
+          const recipe = doc.data();
+          const recipeDetails = document.getElementById('recipe-details');
+          recipeDetails.innerHTML = `
+            <h1>${recipe.title}</h1>
+            <img src="${recipe.imageUrl}" alt="${recipe.title}">
+            <p><strong>By:</strong> ${recipe.chefName}</p>
+            <p>${recipe.description}</p>
+            <p><strong>Preparation:</strong> ${recipe.preparation}</p>
+            <p><strong>Type:</strong> ${recipe.type}</p>
+            <p><strong>Cuisine:</strong> ${recipe.cuisine}</p>
+            <p><strong>Video:</strong> <a href="${recipe.videoUrl}">Watch Video</a></p>
+            <button onclick="window.location.href='chef-profile.html?chefId=${recipe.chefId}'">Visit Chef's Page</button>
+          `;
+        } else {
+          alert('Recipe not found');
+        }
+      }).catch(error => {
+        console.error('Error getting recipe:', error);
       });
-    });
-  </script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCkBpDw-xUjZ3bhMb5P3e3LfSz2R0VNuHk",
-      authDomain: "chef-recipes-bf324.firebaseapp.com",
-      projectId: "chef-recipes-bf324",
-      storageBucket: "chef-recipes-bf324.appspot.com",
-      messagingSenderId: "383027159287",
-      appId: "1:383027159287:web:4d08f2c04142d5117c6c5e"
-    };
-    firebase.initializeApp(firebaseConfig);
+    } else {
+      alert('No recipe ID provided');
+    }
   </script>
 </body>
 
 </html>
+
