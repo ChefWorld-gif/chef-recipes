@@ -3,124 +3,115 @@
 <head>
   <meta charset="UTF-8">
   <title>لوحة تحكم الطاهي</title>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
   <style>
     body {
       font-family: Tahoma, sans-serif;
-      background: #fff8f0;
-      max-width: 800px;
-      margin: auto;
+      background-color: #fff8f0;
+      margin: 0;
       padding: 2rem;
     }
-
-    h2 {
-      color: #e65100;
-      text-align: center;
-    }
-
-    .recipe-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: space-between;
-    }
-
-    .recipe-card {
-      width: 45%;
-      background: #fff;
-      padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .recipe-card img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
-
-    .recipe-card h3 {
-      font-size: 1.2rem;
-      margin: 10px 0;
-    }
-
-    .recipe-card p {
-      font-size: 0.9rem;
-      color: #555;
-    }
-
-    .recipe-card button {
+    header {
       background-color: #ff7043;
       color: white;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+      padding: 1rem;
+      text-align: center;
+      border-radius: 10px;
+      margin-bottom: 2rem;
     }
-
-    .recipe-card button:hover {
-      background-color: #e65100;
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      background-color: #ff7043;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .recipe {
+      background-color: white;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+    }
+    .recipe img {
+      max-width: 100%;
+      border-radius: 10px;
+    }
+    .recipe-title {
+      font-weight: bold;
+      font-size: 18px;
+      margin-top: 0.5rem;
     }
   </style>
 </head>
 <body>
+  <header>
+    <h2>مرحباً بك 👨‍🍳</h2>
+  </header>
 
-<h2>مرحباً بك، <span id="chefName">الطاهي</span></h2>
+  <div class="controls">
+    <button onclick="location.href='add-recipe.html'">➕ إضافة وصفة</button>
+    <button id="logoutBtn">🚪 خروج</button>
+  </div>
 
-<div class="recipe-list" id="recipeList"></div>
+  <div id="myRecipes"></div>
 
-<script type="module">
-  import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-  const db = getFirestore();
-  const auth = getAuth();
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
+      authDomain: "chef-recipes-bf324.firebaseapp.com",
+      projectId: "chef-recipes-bf324",
+      storageBucket: "chef-recipes-bf324.appspot.com",
+      messagingSenderId: "218035207846",
+      appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67"
+    };
 
-  // التأكد من تسجيل دخول المستخدم
-  auth.onAuthStateChanged(async (user) => {
-    if (user) {
-      // إذا كان الطاهي مسجلاً دخوله
-      document.getElementById('chefName').textContent = user.displayName || "الطاهي";
-      loadRecipes(user.uid);
-    } else {
-      alert("يجب أن تسجل الدخول أولاً");
-      window.location.href = "login.html"; // إعادة التوجيه إلى صفحة تسجيل الدخول
-    }
-  });
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  // جلب الوصفات للطاهي
-  async function loadRecipes(userId) {
-    try {
-      const recipesRef = collection(db, "recipes");
-      const q = query(recipesRef, where("chefId", "==", userId));
-      const querySnapshot = await getDocs(q);
-
-      const recipeList = document.getElementById("recipeList");
-      recipeList.innerHTML = ""; // إعادة تعيين المحتوى قبل إضافة الوصفات الجديدة
-
-      querySnapshot.forEach((doc) => {
-        const recipeData = doc.data();
-        const recipeId = doc.id;
-
-        const recipeCard = document.createElement("div");
-        recipeCard.classList.add("recipe-card");
-
-        recipeCard.innerHTML = `
-          <img src="${recipeData.imageURL}" alt="Recipe Image" />
-          <h3>${recipeData.title}</h3>
-          <p>${recipeData.description}</p>
-          <button onclick="window.location.href='edit-recipe.html?recipeId=${recipeId}'">تعديل</button>
-        `;
-
-        recipeList.appendChild(recipeCard);
+    const logoutBtn = document.getElementById("logoutBtn");
+    logoutBtn.onclick = () => {
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
       });
-    } catch (error) {
-      console.error("حدث خطأ في تحميل الوصفات:", error);
-      alert("حدث خطأ أثناء تحميل الوصفات.");
-    }
-  }
-</script>
+    };
 
+    const recipesDiv = document.getElementById("myRecipes");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const q = query(collection(db, "recipes"), where("userId", "==", user.uid));
+        const snapshot = await getDocs(q);
+        snapshot.forEach(doc => {
+          const recipe = doc.data();
+          recipesDiv.innerHTML += `
+            <div class="recipe">
+              <img src="${recipe.imageURL}" alt="صورة الوصفة" />
+              <div class="recipe-title">${recipe.title}</div>
+              <p>${recipe.description}</p>
+              <button onclick="location.href='edit-recipe.html?id=${doc.id}'">✏️ تعديل</button>
+            </div>
+          `;
+        });
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+  </script>
 </body>
 </html>
 
