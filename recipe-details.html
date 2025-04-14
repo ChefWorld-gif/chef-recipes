@@ -1,141 +1,128 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>تفاصيل الوصفة</title>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
-      authDomain: "chef-recipes-bf324.firebaseapp.com",
-      projectId: "chef-recipes-bf324",
-      storageBucket: "chef-recipes-bf324.appspot.com",
-      messagingSenderId: "218035207846",
-      appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
-      measurementId: "G-VGDT2SK1TY"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    async function loadRecipeDetails() {
-      // الحصول على معرّف الوصفة من رابط الصفحة
-      const urlParams = new URLSearchParams(window.location.search);
-      const recipeId = urlParams.get("id");
-
-      if (!recipeId) {
-        window.location.href = "/"; // العودة إلى الصفحة الرئيسية إذا كان الرابط غير صحيح
-        return;
-      }
-
-      const recipeRef = doc(db, "recipes", recipeId);
-      const recipeDoc = await getDoc(recipeRef);
-
-      if (recipeDoc.exists()) {
-        const recipeData = recipeDoc.data();
-        document.getElementById("recipeTitle").innerText = recipeData.recipeTitle;
-        document.getElementById("chefName").innerText = `👨‍🍳 ${recipeData.chefName || "الطاهي غير معرف"}`;
-        document.getElementById("description").innerText = recipeData.description || "لا يوجد وصف مختصر";
-        document.getElementById("image").src = recipeData.imageURL;
-        document.getElementById("instructions").innerText = recipeData.instructions || "لا توجد طريقة تحضير";
-
-        // عرض الفيديو داخل <iframe> إذا كان الرابط موجودًا
-        const videoURL = recipeData.videoURL;
-        if (videoURL) {
-          const videoEmbed = document.createElement("iframe");
-          videoEmbed.src = videoURL;
-          videoEmbed.width = "100%";
-          videoEmbed.height = "315";
-          videoEmbed.frameborder = "0";
-          videoEmbed.allow = "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture";
-          videoEmbed.allowfullscreen = true;
-          document.getElementById("videoContainer").appendChild(videoEmbed);
-        } else {
-          document.getElementById("videoContainer").innerHTML = "<p>لا يوجد فيديو لهذه الوصفة.</p>";
-        }
-      } else {
-        document.getElementById("recipeTitle").innerText = "الوصفة غير موجودة";
-      }
-    }
-
-    window.addEventListener("DOMContentLoaded", loadRecipeDetails);
-  </script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipe Details</title>
+  <link rel="stylesheet" href="styles.css">
   <style>
     body {
-      font-family: Tahoma, sans-serif;
-      background: #fff8f0;
-      padding: 2rem;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #fffdf7;
+    }
+    .container {
       max-width: 800px;
-      margin: auto;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
-
-    h1, h2 {
-      color: #e65100;
-      text-align: center;
-    }
-
     .recipe-image {
       width: 100%;
       height: 300px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 8px;
     }
-
-    .details {
+    .title {
       margin-top: 1rem;
+      font-size: 2rem;
+      color: #333;
     }
-
-    .details h2, .details p {
-      font-size: 16px;
-      color: #444;
+    .chef {
+      color: #888;
+      font-size: 0.9rem;
     }
-
-    .details p {
-      margin-top: 0.5rem;
-      line-height: 1.6;
+    .section {
+      margin-top: 1.5rem;
     }
-
-    .support-button {
-      background-color: #ff7043;
-      border: none;
-      color: white;
-      padding: 1rem;
-      font-size: 16px;
-      border-radius: 5px;
-      cursor: pointer;
+    .section h3 {
+      margin-bottom: 0.5rem;
+      color: #ff7043;
+    }
+    .video {
       width: 100%;
-      text-align: center;
-      margin-top: 1rem;
+      height: 300px;
+      border-radius: 8px;
     }
-
-    .support-button:hover {
-      background-color: #e64a19;
-    }
-
-    iframe {
+    .support-button, .chat-button, .chef-page-button {
       margin-top: 1rem;
-      border-radius: 10px;
+      padding: 0.75rem 1.5rem;
+      background-color: #ff7043;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .support-button:hover, .chat-button:hover, .chef-page-button:hover {
+      background-color: #f4511e;
     }
   </style>
 </head>
+
 <body>
+  <div class="container">
+    <img id="recipe-img" class="recipe-image" src="" alt="Recipe Image">
+    <h1 class="title" id="recipe-title">Loading...</h1>
+    <p class="chef">By <span id="chef-name">Chef</span></p>
 
-  <h1 id="recipeTitle">... تحميل الوصفة...</h1>
-  <img id="image" class="recipe-image" src="" alt="صورة الوصفة">
-  
-  <div class="details">
-    <h2>👨‍🍳 <span id="chefName"></span></h2>
-    <p id="description"></p>
-    <h2>طريقة التحضير:</h2>
-    <p id="instructions"></p>
+    <div class="section">
+      <h3>Description</h3>
+      <p id="recipe-description"></p>
+    </div>
 
-    <div id="videoContainer"></div>
+    <div class="section">
+      <h3>Preparation</h3>
+      <p id="recipe-preparation"></p>
+    </div>
 
-    <button class="support-button">💖 دعم الطاهي</button>
+    <div class="section">
+      <h3>Video</h3>
+      <iframe id="recipe-video" class="video" src="" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+    <button class="support-button" onclick="handleSupport()">Support the Chef</button>
+    <button class="chat-button" onclick="handleChat()">Chat</button>
+    <button class="chef-page-button" onclick="goToChefPage()">View Chef's Page</button>
   </div>
 
+  <script>
+    // Sample JS loading example; replace with Firestore loading logic
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    async function loadRecipe() {
+      const doc = await firebase.firestore().collection('recipes').doc(id).get();
+      const data = doc.data();
+      document.getElementById('recipe-img').src = data.imageUrl;
+      document.getElementById('recipe-title').textContent = data.title;
+      document.getElementById('chef-name').textContent = data.chefName;
+      document.getElementById('recipe-description').textContent = data.description;
+      document.getElementById('recipe-preparation').textContent = data.preparation;
+      document.getElementById('recipe-video').src = data.videoUrl || '';
+    }
+
+    function handleSupport() {
+      alert('Please sign in to support the chef.');
+    }
+    function handleChat() {
+      alert('Please sign in to join the chat.');
+    }
+    function goToChefPage() {
+      // Redirect to chef page (use actual chef ID later)
+      window.location.href = `chef-profile.html?chef=${id}`;
+    }
+
+    // Load the recipe on page load
+    window.onload = loadRecipe;
+  </script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="firebase-config.js"></script>
 </body>
 </html>
+
