@@ -49,17 +49,19 @@
       justify-content: center;
       gap: 1rem;
       padding: 1rem;
+      flex-wrap: wrap;
     }
     .filters input, .filters select {
       padding: 0.5rem;
       border: 1px solid #ccc;
       border-radius: 8px;
+      min-width: 200px;
     }
     .recipes-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 1rem;
-      padding: 1rem;
+      padding: 1rem 2rem;
     }
     .recipe-card {
       background-color: white;
@@ -101,18 +103,18 @@
   </header>
 
   <div class="filters">
-    <input type="text" placeholder="Search for a recipe...">
-    <select>
-      <option>All Types</option>
-      <option>Food</option>
-      <option>Dessert</option>
-      <option>Drink</option>
+    <input type="text" id="searchInput" placeholder="Search for a recipe...">
+    <select id="typeFilter">
+      <option value="">All Types</option>
+      <option value="Food">Food</option>
+      <option value="Dessert">Dessert</option>
+      <option value="Drink">Drink</option>
     </select>
-    <select>
-      <option>All Cuisines</option>
-      <option>Italian</option>
-      <option>Arabic</option>
-      <option>Asian</option>
+    <select id="cuisineFilter">
+      <option value="">All Cuisines</option>
+      <option value="Italian">Italian</option>
+      <option value="Arabic">Arabic</option>
+      <option value="Asian">Asian</option>
     </select>
   </div>
 
@@ -124,4 +126,3 @@
 </body>
 
 </html>
-
