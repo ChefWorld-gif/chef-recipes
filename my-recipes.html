@@ -3,57 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <title>وصفاتي</title>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js" type="module"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
   <style>
     body {
       font-family: Tahoma, sans-serif;
-      background: #fffaf3;
       padding: 2rem;
+      background: #fffaf3;
     }
 
     h2 {
       color: #d35400;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 0.5rem;
     }
 
-    ul {
-      list-style: none;
-      padding-right: 0;
+    .section {
+      margin-bottom: 2rem;
     }
 
-    li {
+    .recipe-link {
+      display: block;
       margin-bottom: 0.5rem;
+      color: #2980b9;
+      text-decoration: underline;
       cursor: pointer;
-      color: #333;
-      padding: 0.3rem 0.5rem;
-      border-radius: 5px;
-      background: #f7f7f7;
-      transition: 0.2s;
-    }
-
-    li:hover {
-      background: #ffe0c0;
     }
   </style>
 </head>
 <body>
 
-<h1>📋 وصفاتي</h1>
+<h2>📘 وصفاتي</h2>
 
-<h2>🍽️ مأكولات</h2>
-<ul id="meals-list"></ul>
+<div class="section">
+  <h3>🍽️ المأكولات</h3>
+  <div id="mealsList"></div>
+</div>
 
-<h2>🍰 حلوى</h2>
-<ul id="desserts-list"></ul>
+<div class="section">
+  <h3>🍰 الحلويات</h3>
+  <div id="dessertsList"></div>
+</div>
 
-<h2>🥤 مشروبات</h2>
-<ul id="drinks-list"></ul>
+<div class="section">
+  <h3>🥤 المشروبات</h3>
+  <div id="drinksList"></div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
@@ -61,34 +58,38 @@
     projectId: "chef-recipes-bf324",
     storageBucket: "chef-recipes-bf324.appspot.com",
     messagingSenderId: "218035207846",
-    appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
-    measurementId: "G-VGDT2SK1TY"
+    appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  async function loadRecipes() {
-    const querySnapshot = await getDocs(collection(db, "recipes"));
+  // استبدل هذا بالقيمة الحقيقية للطاهي بعد تسجيل الدخول
+  const chefName = localStorage.getItem("chefName");
 
-    querySnapshot.forEach(doc => {
-      const recipe = doc.data();
-      const listId = recipe.category === "حلوى" ? "desserts-list"
-                   : recipe.category === "مشروب" ? "drinks-list"
-                   : "meals-list";
+  async function fetchRecipes() {
+    const q = query(collection(db, "recipes"), where("chef", "==", chefName));
+    const querySnapshot = await getDocs(q);
 
-      const li = document.createElement("li");
-      li.textContent = recipe.title;
-      li.onclick = () => {
-        // ننقل إلى صفحة التعديل مع معرف الوصفة
-        window.location.href = `edit-recipe.html?id=${doc.id}`;
-      };
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const id = docSnap.id;
+      const link = document.createElement("a");
+      link.className = "recipe-link";
+      link.textContent = data.title || "بدون عنوان";
+      link.href = `edit-recipe.html?id=${id}`;
 
-      document.getElementById(listId).appendChild(li);
+      if (data.category === "مشروب") {
+        document.getElementById("drinksList").appendChild(link);
+      } else if (data.category === "حلى" || data.category === "حلويات") {
+        document.getElementById("dessertsList").appendChild(link);
+      } else {
+        document.getElementById("mealsList").appendChild(link);
+      }
     });
   }
 
-  loadRecipes();
+  fetchRecipes();
 </script>
 
 </body>
