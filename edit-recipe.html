@@ -2,104 +2,119 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>تعديل الوصفة</title>
+  <title>تعديل وصفة</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js" type="module"></script>
   <style>
     body {
       font-family: Tahoma, sans-serif;
-      background: #fff8f0;
+      background-color: #fff8f0;
+      padding: 2rem;
       max-width: 600px;
       margin: auto;
-      padding: 2rem;
     }
 
     h2 {
-      color: #e65100;
+      color: #d35400;
       text-align: center;
     }
 
     input, textarea {
       width: 100%;
-      padding: 0.8rem;
       margin-bottom: 1rem;
+      padding: 0.8rem;
+      font-size: 16px;
       border: 1px solid #ccc;
       border-radius: 5px;
-      font-size: 15px;
     }
 
     button {
-      padding: 0.8rem 1.5rem;
-      background-color: #ff7043;
-      border: none;
+      background-color: #e67e22;
       color: white;
-      font-size: 16px;
+      padding: 0.8rem 1.5rem;
+      border: none;
       border-radius: 5px;
+      font-size: 16px;
       cursor: pointer;
-      width: 100%;
     }
-
-    button:hover {
-      background-color: #e65100;
-    }
-
   </style>
 </head>
 <body>
 
-<h2>تعديل الوصفة</h2>
+<h2>✏️ تعديل وصفة</h2>
 
-<form id="editRecipeForm">
-  <input type="text" id="recipeTitle" placeholder="اسم الوصفة" required />
-  <textarea id="recipeDescription" placeholder="وصف الوصفة" required></textarea>
-  <input type="url" id="recipeImage" placeholder="رابط صورة الطبق" required />
-  <input type="url" id="recipeVideo" placeholder="رابط الفيديو" />
-  <button type="submit">حفظ التعديلات</button>
+<form id="editForm">
+  <input type="text" id="title" placeholder="اسم الطبخة" required />
+  <input type="text" id="chef" placeholder="اسم الطاهي" required />
+  <textarea id="description" placeholder="الوصف" required></textarea>
+  <textarea id="preparation" placeholder="طريقة التحضير" required></textarea>
+  <input type="url" id="imageURL" placeholder="رابط الصورة" required />
+  <input type="url" id="videoURL" placeholder="رابط الفيديو (اختياري)" />
+  <button type="submit">💾 حفظ التعديل</button>
 </form>
 
 <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-  const db = getFirestore();
-  const auth = getAuth();
+  const firebaseConfig = {
+    apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
+    authDomain: "chef-recipes-bf324.firebaseapp.com",
+    projectId: "chef-recipes-bf324",
+    storageBucket: "chef-recipes-bf324.appspot.com",
+    messagingSenderId: "218035207846",
+    appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
+    measurementId: "G-VGDT2SK1TY"
+  };
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const recipeId = urlParams.get("recipeId");
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-  // جلب بيانات الوصفة
+  const params = new URLSearchParams(window.location.search);
+  const recipeId = params.get('id');
+
   async function loadRecipe() {
-    const recipeDoc = await getDoc(doc(db, "recipes", recipeId));
-    if (recipeDoc.exists()) {
-      const recipeData = recipeDoc.data();
-      document.getElementById("recipeTitle").value = recipeData.title;
-      document.getElementById("recipeDescription").value = recipeData.description;
-      document.getElementById("recipeImage").value = recipeData.imageURL;
-      document.getElementById("recipeVideo").value = recipeData.videoURL;
+    if (!recipeId) return alert("لم يتم تحديد الوصفة.");
+
+    const docRef = doc(db, "recipes", recipeId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      document.getElementById("title").value = data.title || "";
+      document.getElementById("chef").value = data.chef || "";
+      document.getElementById("description").value = data.description || "";
+      document.getElementById("preparation").value = data.preparation || "";
+      document.getElementById("imageURL").value = data.imageURL || "";
+      document.getElementById("videoURL").value = data.videoURL || "";
+    } else {
+      alert("❌ الوصفة غير موجودة.");
     }
   }
 
-  // حفظ التعديلات
-  document.getElementById("editRecipeForm").addEventListener("submit", async (e) => {
+  loadRecipe();
+
+  document.getElementById("editForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const title = document.getElementById("recipeTitle").value;
-    const description = document.getElementById("recipeDescription").value;
-    const imageURL = document.getElementById("recipeImage").value;
-    const videoURL = document.getElementById("recipeVideo").value;
+
+    const updatedData = {
+      title: document.getElementById("title").value,
+      chef: document.getElementById("chef").value,
+      description: document.getElementById("description").value,
+      preparation: document.getElementById("preparation").value,
+      imageURL: document.getElementById("imageURL").value,
+      videoURL: document.getElementById("videoURL").value,
+    };
 
     try {
-      await updateDoc(doc(db, "recipes", recipeId), {
-        title,
-        description,
-        imageURL,
-        videoURL
-      });
-      alert("تم حفظ التعديلات بنجاح!");
-      window.location.href = "dashboard.html"; // العودة إلى لوحة التحكم بعد الحفظ
+      await updateDoc(doc(db, "recipes", recipeId), updatedData);
+      alert("✅ تم تحديث الوصفة بنجاح!");
+      window.location.href = "my-recipes.html";
     } catch (error) {
-      alert("حدث خطأ أثناء حفظ التعديلات.");
+      console.error("❌ خطأ في التحديث:", error);
+      alert("حدث خطأ أثناء التحديث.");
     }
   });
-
-  window.onload = loadRecipe;
 </script>
 
 </body>
