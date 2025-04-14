@@ -1,118 +1,112 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>لوحة تحكم الطاهي</title>
-  <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
-  <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
-  <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
+  <script type="module" src="dashboard.js"></script>
   <style>
     body {
       font-family: Tahoma, sans-serif;
       background-color: #fff8f0;
-      margin: 0;
       padding: 2rem;
+      text-align: center;
     }
-    header {
+
+    h2 {
+      color: #e65100;
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 1rem 1.5rem;
       background-color: #ff7043;
       color: white;
-      padding: 1rem;
-      text-align: center;
-      border-radius: 10px;
-      margin-bottom: 2rem;
-    }
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 2rem;
-    }
-    button {
-      padding: 0.5rem 1rem;
-      background-color: #ff7043;
       border: none;
       border-radius: 8px;
-      color: white;
-      cursor: pointer;
       font-size: 16px;
+      cursor: pointer;
+      text-decoration: none;
     }
-    .recipe {
-      background-color: white;
+
+    .btn:hover {
+      background-color: #ff5722;
+    }
+
+    #chartContainer {
+      max-width: 600px;
+      margin: 3rem auto;
+      background: white;
       padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin-bottom: 1rem;
-    }
-    .recipe img {
-      max-width: 100%;
-      border-radius: 10px;
-    }
-    .recipe-title {
-      font-weight: bold;
-      font-size: 18px;
-      margin-top: 0.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
   </style>
 </head>
 <body>
-  <header>
-    <h2>مرحباً بك 👨‍🍳</h2>
-  </header>
+  <h2>مرحباً بك 👨‍🍳</h2>
+  <a class="btn" href="add-recipe.html">➕ إضافة وصفة</a>
+  <a class="btn" href="my-recipes.html">📝 تعديل وصفة سابقة</a>
+  <button class="btn" onclick="logout()">🚪 تسجيل الخروج</button>
 
-  <div class="controls">
-    <button onclick="location.href='add-recipe.html'">➕ إضافة وصفة</button>
-    <button id="logoutBtn">🚪 خروج</button>
+  <div id="chartContainer">
+    <canvas id="statsChart" width="400" height="300"></canvas>
   </div>
 
-  <div id="myRecipes"></div>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="module">
+    // تسجيل الخروج
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
     const firebaseConfig = {
       apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
       authDomain: "chef-recipes-bf324.firebaseapp.com",
       projectId: "chef-recipes-bf324",
       storageBucket: "chef-recipes-bf324.appspot.com",
       messagingSenderId: "218035207846",
-      appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67"
+      appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
     };
-
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
 
-    const logoutBtn = document.getElementById("logoutBtn");
-    logoutBtn.onclick = () => {
+    window.logout = function () {
       signOut(auth).then(() => {
         window.location.href = "index.html";
       });
     };
 
-    const recipesDiv = document.getElementById("myRecipes");
-
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const q = query(collection(db, "recipes"), where("userId", "==", user.uid));
-        const snapshot = await getDocs(q);
-        snapshot.forEach(doc => {
-          const recipe = doc.data();
-          recipesDiv.innerHTML += `
-            <div class="recipe">
-              <img src="${recipe.imageURL}" alt="صورة الوصفة" />
-              <div class="recipe-title">${recipe.title}</div>
-              <p>${recipe.description}</p>
-              <button onclick="location.href='edit-recipe.html?id=${doc.id}'">✏️ تعديل</button>
-            </div>
-          `;
-        });
-      } else {
-        window.location.href = "login.html";
+    // رسم بياني وهمي للمشاهدات والأرباح
+    const ctx = document.getElementById('statsChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['يناير', 'فبراير', 'مارس', 'أبريل'],
+        datasets: [
+          {
+            label: 'عدد المشاهدات',
+            data: [120, 190, 300, 500],
+            backgroundColor: '#ffa726'
+          },
+          {
+            label: 'الأرباح ($)',
+            data: [5, 10, 15, 25],
+            backgroundColor: '#66bb6a'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          title: {
+            display: true,
+            text: 'تحليل المشاهدات والأرباح'
+          }
+        }
       }
     });
   </script>
 </body>
 </html>
-
 
