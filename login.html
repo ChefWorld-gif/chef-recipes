@@ -1,9 +1,73 @@
-<!-- صفحة تسجيل الدخول -->
-<form id="loginForm">
-  <input type="email" id="email" placeholder="البريد الإلكتروني" required />
-  <input type="password" id="password" placeholder="كلمة المرور" required />
-  <button type="submit">تسجيل الدخول</button>
-</form>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تسجيل الدخول للطهاة</title>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
+  <style>
+    body {
+      background: #fff8f0;
+      font-family: Tahoma, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      background: white;
+      padding: 2rem 3rem;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    h2 {
+      text-align: center;
+      color: #e65100;
+      margin-bottom: 1rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background: #ff7043;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+      margin-top: 1rem;
+      cursor: pointer;
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-container">
+  <h2>🔐 دخول الطهاة</h2>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+    <input type="password" id="password" placeholder="كلمة المرور" required>
+    <button type="submit">دخول</button>
+  </form>
+  <div class="error" id="errorMsg"></div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -15,23 +79,27 @@
     projectId: "chef-recipes-bf324",
     storageBucket: "chef-recipes-bf324.appspot.com",
     messagingSenderId: "218035207846",
-    appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67"
+    appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
+    measurementId: "G-VGDT2SK1TY"
   };
 
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+  const auth = getAuth();
 
-document.getElementById("loginForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    window.location.href = "chef-dashboard.html"; // إعادة التوجيه
-  } catch (error) {
-    alert("❌ فشل تسجيل الدخول: " + error.message);
-  }
-});
-
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.href = "chef-dashboard.html";
+    } catch (error) {
+      document.getElementById("errorMsg").textContent = "فشل تسجيل الدخول: " + error.message;
+    }
+  });
 </script>
+
+</body>
+</html>
+
