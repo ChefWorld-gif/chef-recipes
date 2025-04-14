@@ -1,103 +1,57 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <title>صفحة الشيف نورة</title>
-  <style>
-    body {
-      font-family: 'Tahoma', sans-serif;
-      background-color: #fffaf0;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
-
-    header {
-      background-color: #f57c00;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-
-    .profile {
-      max-width: 800px;
-      margin: 2rem auto;
-      background: white;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    .profile img {
-      width: 120px;
-      border-radius: 50%;
-      margin-bottom: 1rem;
-    }
-
-    .profile h2 {
-      margin: 0;
-    }
-
-    .recipes {
-      margin-top: 2rem;
-    }
-
-    .recipes a {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: #f57c00;
-      text-decoration: none;
-    }
-
-    .recipes a:hover {
-      text-decoration: underline;
-    }
-
-    .add-recipe {
-      margin-top: 1rem;
-      background-color: #4caf50;
-      color: white;
-      padding: 0.7rem 1.2rem;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .earnings {
-      margin-top: 2rem;
-      background: #f1f1f1;
-      padding: 1rem;
-      border-radius: 5px;
-    }
-  </style>
-</head>
-<body>
-
-<header>
-  <h1>👩‍🍳 صفحة الشيف نورة</h1>
-</header>
-
-<div class="profile" align="center">
-  <img src="https://www.w3schools.com/howto/img_avatar2.png" alt="الشيف نورة">
-  <h2>الشيف نورة</h2>
-  <p>محبة للمطبخ الخليجي والعالمي ❤️</p>
-
-  <div class="recipes">
-    <h3>📖 وصفاتي:</h3>
-    <a href="recipe.html" target="_blank">🍛 كبسة الدجاج</a>
-    <a href="#">🍰 تشيز كيك</a>
-    <a href="#">🍹 عصير مانجو</a>
-  </div>
-
- <a href="add-recipe.html" class="add-recipe">➕ إضافة وصفة جديدة</a>
-
-
-  <div class="earnings">
-    <h4>💰 أرباحي حتى الآن:</h4>
-    <p>35 ريال من الدعم 💖</p>
-    <p>الإعلانات: 12 مشاهدة</p>
-  </div>
+<!-- قائمة الوصفات للطاهي -->
+<div id="chef-recipes">
+  <!-- سيتم ملء هذا القسم بالوصفات عبر JavaScript -->
 </div>
 
-</body>
-</html>
+<script type="module">
+  import { getFirestore, collection, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+  const db = getFirestore();
+  const auth = getAuth();
+
+  // جلب الوصفات للطاهي المسجل
+  async function loadRecipes() {
+    const user = auth.currentUser;
+    if (user) {
+      const recipesRef = collection(db, "recipes");
+      const q = query(recipesRef, where("chefId", "==", user.uid));
+      const querySnapshot = await getDocs(q);
+
+      const recipesContainer = document.getElementById("chef-recipes");
+      recipesContainer.innerHTML = ""; // مسح المحتوى القديم
+
+      querySnapshot.forEach((doc) => {
+        const recipeData = doc.data();
+        const recipeId = doc.id;
+
+        const recipeCard = document.createElement("div");
+        recipeCard.classList.add("recipe-card");
+
+        recipeCard.innerHTML = `
+          <img src="${recipeData.imageURL}" alt="Recipe Image" class="recipe-image" />
+          <h3>${recipeData.title}</h3>
+          <p>${recipeData.description}</p>
+          <a href="edit-recipe.html?recipeId=${recipeId}" class="edit-btn">تعديل</a>
+          <button class="delete-btn" onclick="deleteRecipe('${recipeId}')">حذف</button>
+        `;
+
+        recipesContainer.appendChild(recipeCard);
+      });
+    }
+  }
+
+  // حذف الوصفة
+  async function deleteRecipe(recipeId) {
+    try {
+      await deleteDoc(doc(db, "recipes", recipeId));
+      alert("تم حذف الوصفة بنجاح!");
+      loadRecipes(); // إعادة تحميل الوصفات بعد الحذف
+    } catch (error) {
+      alert("حدث خطأ أثناء الحذف.");
+    }
+  }
+
+  // تحميل الوصفات عند فتح الصفحة
+  window.onload = loadRecipes;
+</script>
