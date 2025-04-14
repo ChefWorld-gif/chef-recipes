@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>لوحة تحكم الطاهي</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
+  <style>
+    body {
+      font-family: Tahoma, sans-serif;
+      background-color: #fff8f0;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h2 {
+      text-align: center;
+      color: #e65100;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 10px 0;
+      background-color: #ff7043;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .section {
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #fff3e0;
+      border-radius: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .recipe {
+      background: #fff;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #eee;
+      border-radius: 8px;
+    }
+
+    .success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h2>👨‍🍳 مرحباً، <span id="chefName">الطاهي</span>!</h2>
+
+  <div class="section">
+    <h3>➕ إضافة وصفة جديدة</h3>
+    <button onclick="location.href='add-recipe.html'">إضافة وصفة</button>
+  </div>
+
+  <div class="section">
+    <h3>📋 وصفاتك</h3>
+    <div id="myRecipes">جاري تحميل وصفاتك...</div>
+  </div>
+
+  <div class="section">
+    <h3>💰 أرباحك وتحليلات</h3>
+    <p>عدد الدعمات: <span id="supportCount">0</span></p>
+    <p>مشاهدات وصفاتك: <span id="viewCount">0</span></p>
+  </div>
+
+  <div class="section">
+    <h3>💳 حساب بايبال</h3>
+    <input type="email" id="paypalEmail" placeholder="أدخل بريد البايبال" />
+    <button onclick="savePaypal()">حفظ</button>
+    <p class="success" id="paypalSuccess"></p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
+      authDomain: "chef-recipes-bf324.firebaseapp.com",
+      projectId: "chef-recipes-bf324",
+      storageBucket: "chef-recipes-bf324.appspot.com",
+      messagingSenderId: "218035207846",
+      appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        document.getElementById("chefName").textContent = user.displayName || "طاهٍ";
+
+        // تحميل وصفات الطاهي
+        const recipesRef = collection(db, "recipes");
+        const q = query(recipesRef, where("userId", "==", user.uid));
+        const querySnapshot = await getDocs(q);
+
+        let output = "";
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          output += `
+            <div class="recipe">
+              <strong>${data.title}</strong><br>
+              ${data.description}
+            </div>
+          `;
+        });
+
+        document.getElementById("myRecipes").innerHTML = output || "لم تقم بإضافة وصفات بعد.";
+      } else {
+        alert("يرجى تسجيل الدخول أولاً");
+        location.href = "login.html";
+      }
+    });
+
+    async function savePaypal() {
+      const paypalEmail = document.getElementById("paypalEmail").value;
+      if (!paypalEmail) return;
+
+      try {
+        await setDoc(doc(db, "chefs", currentUser.uid), {
+          paypal: paypalEmail
+        }, { merge: true });
+
+        document.getElementById("paypalSuccess").textContent = "✅ تم حفظ حساب البايبال بنجاح";
+      } catch (e) {
+        console.error("خطأ في حفظ بايبال:", e);
+      }
+    }
+  </script>
+</body>
+</html>
