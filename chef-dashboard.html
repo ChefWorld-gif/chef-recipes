@@ -97,7 +97,7 @@
       const querySnapshot = await getDocs(q);
 
       const recipeList = document.getElementById("recipeList");
-      recipeList.innerHTML = "";
+      recipeList.innerHTML = ""; // إعادة تعيين المحتوى قبل إضافة الوصفات الجديدة
 
       querySnapshot.forEach((doc) => {
         const recipeData = doc.data();
@@ -124,6 +124,7 @@
 
 </body>
 </html>
+
 
 
 </body>
