@@ -1,112 +1,15 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8" />
-  <title>لوحة تحكم الطاهي</title>
-  <script type="module" src="dashboard.js"></script>
-  <style>
-    body {
-      font-family: Tahoma, sans-serif;
-      background-color: #fff8f0;
-      padding: 2rem;
-      text-align: center;
-    }
-
-    h2 {
-      color: #e65100;
-      margin-bottom: 2rem;
-    }
-
-    .btn {
-      display: inline-block;
-      margin: 0.5rem;
-      padding: 1rem 1.5rem;
-      background-color: #ff7043;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .btn:hover {
-      background-color: #ff5722;
-    }
-
-    #chartContainer {
-      max-width: 600px;
-      margin: 3rem auto;
-      background: white;
-      padding: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-  </style>
-</head>
-<body>
-  <h2>مرحباً بك 👨‍🍳</h2>
-  <a class="btn" href="add-recipe.html">➕ إضافة وصفة</a>
-  <a class="btn" href="my-recipes.html">📝 تعديل وصفة سابقة</a>
-  <button class="btn" onclick="logout()">🚪 تسجيل الخروج</button>
-
-  <div id="chartContainer">
-    <canvas id="statsChart" width="400" height="300"></canvas>
-  </div>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chef Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- تضمين مكتبة Chart.js للرسوم البيانية -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script type="module">
-    // تسجيل الخروج
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    const firebaseConfig = {
-      apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
-      authDomain: "chef-recipes-bf324.firebaseapp.com",
-      projectId: "chef-recipes-bf324",
-      storageBucket: "chef-recipes-bf324.appspot.com",
-      messagingSenderId: "218035207846",
-      appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  <style>
+    /* بعض التنسيقات الأساسية للوحة التحكم */
+    .chef-dashboard { display: flex; }\n    .sidebar { width: 250px; background: #fff; padding: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }\n    .sidebar .profile-section { text-align: center; }\n    .sidebar .profile-img { width: 100px; height: 100px; border-radius: 50%; }\n    .dashboard-nav ul { list-style: none; padding: 0; }\n    .dashboard-nav li { margin: 1rem 0; }\n    .dashboard-nav a { text-decoration: none; color: #ff7043; font-weight: bold; }\n    .dashboard-content { flex: 1; padding: 2rem; }\n    .form-group { margin-bottom: 1rem; }\n    .form-group label { display: block; margin-bottom: 0.5rem; }\n    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; }\n    .submit-btn { padding: 0.75rem 1.5rem; background-color: #ff7043; color: #fff; border: none; border-radius: 4px; cursor: pointer; margin-top: 1rem; }\n    .chart-container { max-width: 600px; margin: 2rem auto; }\n  </style>\n</head>\n<body>\n  <div class=\"chef-dashboard\">\n    <aside class=\"sidebar\">\n      <div class=\"profile-section\">\n        <img src=\"images/chef-avatar.jpg\" alt=\"Chef Avatar\" class=\"profile-img\">\n        <h3>Welcome, Chef Ahmed</h3>\n      </div>\n      <nav class=\"dashboard-nav\">\n        <ul>\n          <li class=\"active\"><a href=\"#\">Dashboard</a></li>\n          <li><a href=\"my-recipes.html\">My Recipes</a></li>\n          <li><a href=\"#\">Statistics</a></li>\n          <li><a href=\"#\">Account Settings</a></li>\n          <li><a href=\"#\" id=\"logout-btn\">Sign Out</a></li>\n        </ul>\n      </nav>\n    </aside>\n\n    <main class=\"dashboard-content\">\n      <section class=\"add-recipe-section\">\n        <h2>Post a New Recipe</h2>\n        <form id=\"add-recipe-form\">\n          <div class=\"form-group\">\n            <label for=\"recipe-name\">Recipe Name</label>\n            <input type=\"text\" id=\"recipe-name\" required>\n          </div>\n          <div class=\"form-group\">\n            <label for=\"recipe-ingredients\">Ingredients (separated by commas)</label>\n            <textarea id=\"recipe-ingredients\" required></textarea>\n          </div>\n          <div class=\"form-group\">\n            <label for=\"recipe-instructions\">Preparation Method</label>\n            <textarea id=\"recipe-instructions\" required></textarea>\n          </div>\n          <div class=\"form-row\">\n            <div class=\"form-group\">\n              <label for=\"recipe-category\">Category</label>\n              <select id=\"recipe-category\" required>\n                <option value=\"food\">Food</option>\n                <option value=\"dessert\">Dessert</option>\n                <option value=\"drink\">Drink</option>\n              </select>\n            </div>\n            <div class=\"form-group\">\n              <label for=\"recipe-cuisine\">Cuisine</label>\n              <select id=\"recipe-cuisine\" required>\n                <option value=\"arabic\">Arabic</option>\n                <option value=\"international\">International</option>\n                <option value=\"asian\">Asian</option>\n              </select>\n            </div>\n          </div>\n          <div class=\"form-group\">\n            <label for=\"recipe-image\">Image URL</label>\n            <input type=\"text\" id=\"recipe-image\" required>\n          </div>\n          <div class=\"form-group\">\n            <label for=\"recipe-video\">Video URL (Optional)</label>\n            <input type=\"text\" id=\"recipe-video\">\n          </div>\n          <button type=\"submit\" class=\"submit-btn\">Post Recipe</button>\n        </form>\n      </section>\n      \n      <section class=\"stats-section\">\n        <h2>Performance Statistics</h2>\n        <div class=\"chart-container\">\n          <canvas id=\"performance-chart\"></canvas>\n        </div>\n        <div class=\"earnings-info\">\n          <h3>Earnings</h3>\n          <p>Total Earnings: <span id=\"total-earnings\">150</span> SAR</p>\n          <p>This Month's Views: <span id=\"month-views\">1,240</span></p>\n          <div class=\"payment-setup\">\n            <h3>Payment Setup</h3>\n            <select id=\"payment-method\">\n              <option value=\"paypal\">PayPal</option>\n              <option value=\"bank\">Bank Account</option>\n            </select>\n            <input type=\"text\" id=\"payment-details\" placeholder=\"Enter payment details\">\n            <button id=\"save-payment-btn\" class=\"submit-btn\">Save</button>\n          </div>\n        </div>\n      </section>\n    </main>\n  </div>\n\n  <script src=\"js/chef-dashboard.js\"></script>\n</body>\n</html>\n"
+}
 
-    window.logout = function () {
-      signOut(auth).then(() => {
-        window.location.href = "index.html";
-      });
-    };
-
-    // رسم بياني وهمي للمشاهدات والأرباح
-    const ctx = document.getElementById('statsChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['يناير', 'فبراير', 'مارس', 'أبريل'],
-        datasets: [
-          {
-            label: 'عدد المشاهدات',
-            data: [120, 190, 300, 500],
-            backgroundColor: '#ffa726'
-          },
-          {
-            label: 'الأرباح ($)',
-            data: [5, 10, 15, 25],
-            backgroundColor: '#66bb6a'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'top' },
-          title: {
-            display: true,
-            text: 'تحليل المشاهدات والأرباح'
-          }
-        }
-      }
-    });
-  </script>
-</body>
-</html>
 
