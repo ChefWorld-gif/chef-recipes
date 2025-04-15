@@ -1,105 +1,32 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <title>تسجيل الدخول للطهاة</title>
-  <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
-  <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In - Chef Recipes</title>
+  <link rel="stylesheet" href="styles.css">
   <style>
     body {
-      background: #fff8f0;
-      font-family: Tahoma, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      background-color: #fdfcfb;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-
     .login-container {
-      background: white;
-      padding: 2rem 3rem;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 90%;
       max-width: 400px;
-      width: 100%;
-    }
-
-    h2 {
       text-align: center;
-      color: #e65100;
-      margin-bottom: 1rem;
     }
-
-    input {
-      width: 100%;
-      padding: 0.8rem;
-      margin: 0.5rem 0;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+    .login-container h2 {
+      margin-bottom: 1.5rem;
+      color: #ff7043;
     }
+    .user-type-selector {\n      display: flex;\n      justify-content: center;\n      gap: 1rem;\n      margin-bottom: 1rem;\n    }\n    .user-type-btn {\n      padding: 0.5rem 1rem;\n      border: 1px solid #ccc;\n      border-radius: 4px;\n      cursor: pointer;\n      background: #fff;\n      transition: 0.3s;\n    }\n    .user-type-btn.active {\n      background-color: #ff7043;\n      color: #fff;\n      border-color: #ff7043;\n    }\n    .login-input {\n      width: 100%;\n      padding: 0.75rem;\n      margin: 0.5rem 0;\n      border: 1px solid #ddd;\n      border-radius: 4px;\n    }\n    .submit-btn {\n      width: 100%;\n      padding: 0.75rem;\n      background-color: #ff7043;\n      color: #fff;\n      border: none;\n      border-radius: 4px;\n      font-size: 1rem;\n      cursor: pointer;\n      margin-top: 1rem;\n    }\n    .register-link {\n      margin-top: 1rem;\n      font-size: 0.9rem;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"login-container\">\n    <h2>Sign In</h2>\n    <div class=\"user-type-selector\">\n      <button class=\"user-type-btn active\" data-type=\"user\">User</button>\n      <button class=\"user-type-btn\" data-type=\"chef\">Chef</button>\n    </div>\n    <div class=\"login-form\">\n      <input type=\"email\" placeholder=\"Email\" class=\"login-input\" id=\"email\">\n      <input type=\"password\" placeholder=\"Password\" class=\"login-input\" id=\"password\">\n\n      <div id=\"chef-fields\" style=\"display: none;\">\n        <input type=\"text\" placeholder=\"Your Name\" class=\"login-input\" id=\"chefName\">\n        <select class=\"login-input\" id=\"preferredCuisine\">\n          <option value=\"\">Preferred Cuisine (Optional)</option>\n          <option value=\"Arabic\">Arabic</option>\n          <option value=\"International\">International</option>\n        </select>\n        <p class=\"earn-message\">Join as Chef and earn from your recipes!</p>\n      </div>\n\n      <button class=\"submit-btn\" id=\"login-btn\">Sign In</button>\n      <p class=\"register-link\">Don't have an account? <a href=\"#\">Register here</a></p>\n    </div>\n  </div>\n\n  <script src=\"js/auth.js\"></script>\n</body>\n</html>
 
-    button {
-      width: 100%;
-      padding: 0.8rem;
-      background: #ff7043;
-      border: none;
-      color: white;
-      font-size: 16px;
-      border-radius: 5px;
-      margin-top: 1rem;
-      cursor: pointer;
-    }
-
-    .error {
-      color: red;
-      text-align: center;
-      margin-top: 1rem;
-    }
-  </style>
-</head>
-<body>
-
-<div class="login-container">
-  <h2>🔐 دخول الطهاة</h2>
-  <form id="loginForm">
-    <input type="email" id="email" placeholder="البريد الإلكتروني" required>
-    <input type="password" id="password" placeholder="كلمة المرور" required>
-    <button type="submit">دخول</button>
-  </form>
-  <div class="error" id="errorMsg"></div>
-</div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBOh-hsuoYzDwOdwKAa7bMtLCy4UA3W0Qw",
-    authDomain: "chef-recipes-bf324.firebaseapp.com",
-    projectId: "chef-recipes-bf324",
-    storageBucket: "chef-recipes-bf324.appspot.com",
-    messagingSenderId: "218035207846",
-    appId: "1:218035207846:web:0bf2c1f2f3c4eabe433e67",
-    measurementId: "G-VGDT2SK1TY"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth();
-
-  document.getElementById("loginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "chef-dashboard.html";
-    } catch (error) {
-      document.getElementById("errorMsg").textContent = "فشل تسجيل الدخول: " + error.message;
-    }
-  });
-</script>
-
-</body>
-</html>
 
