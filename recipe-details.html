@@ -1,16 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recipe Details</title>
   <link rel="stylesheet" href="styles.css">
-  <!-- Add Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <style>
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .recipe-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .title {
+      margin-top: 1rem;
+      font-size: 2rem;
+      color: #333;
+    }
+    .chef {
+      color: #888;
+      font-size: 0.9rem;
+    }
+    .section { margin-top: 1.5rem; }
+    .section h3 { margin-bottom: 0.5rem; color: #ff7043; }
+    .video { width: 100%; height: 300px; border: none; border-radius: 8px; }
+    .actions { margin-top: 1rem; display: flex; justify-content: space-around; gap: 1rem; flex-wrap: wrap; }
+    .actions button { padding: 0.75rem 1.5rem; background-color: #ff7043; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+    .actions button:hover { background-color: #f4511e; }
+  </style>
 </head>
-
 <body>
   <header>
     <div class="logo">Chef Recipes</div>
@@ -18,96 +44,27 @@
       <span>Sign In</span>
     </a>
   </header>
-
-  <main id="recipe-details">
-    <!-- Recipe details will be loaded here -->
-    <div class="loading">Loading recipe...</div>
-  </main>
-
+  
+  <div class="container" id="recipe-details">
+    <!-- Recipe details will load here -->
+  </div>
+  
   <script>
-    // Initialize Firebase (replace with your config)
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-    
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    
-    document.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search);
-      const recipeId = params.get('id');
+    const params = new URLSearchParams(window.location.search);
+    const recipeId = params.get('id');
 
-      if (!recipeId) {
-        document.getElementById('recipe-details').innerHTML = `
-          <div class="error">No recipe ID provided. Please go back to the recipes list.</div>
-        `;
-        return;
-      }
-
-      firebase.firestore().collection('recipes').doc(recipeId).get()
-        .then(doc => {
-          const recipeDetails = document.getElementById('recipe-details');
-          
-          if (!doc.exists) {
-            recipeDetails.innerHTML = `
-              <div class="error">Recipe not found. It may have been removed.</div>
-            `;
-            return;
-          }
-
+    if (recipeId) {
+      firebase.firestore().collection('recipes').doc(recipeId).get().then(doc => {
+        if (doc.exists) {
           const recipe = doc.data();
-          recipeDetails.innerHTML = `
-            <div class="recipe-header">
-              <h1>${recipe.title || 'No title'}</h1>
-              <p class="chef-name"><strong>By:</strong> ${recipe.chefName || 'Unknown chef'}</p>
-            </div>
-            
-            <div class="recipe-image">
-              <img src="${recipe.imageUrl || 'placeholder.jpg'}" alt="${recipe.title || 'Recipe image'}">
-            </div>
-            
-            <div class="recipe-meta">
-              <p><strong>Type:</strong> ${recipe.type || 'Not specified'}</p>
-              <p><strong>Cuisine:</strong> ${recipe.cuisine || 'Not specified'}</p>
-            </div>
-            
-            <div class="recipe-description">
-              <h2>Description</h2>
-              <p>${recipe.description || 'No description available.'}</p>
-            </div>
-            
-            <div class="recipe-preparation">
-              <h2>Preparation</h2>
-              <p>${recipe.preparation || 'No preparation details available.'}</p>
-            </div>
-            
-            ${recipe.videoUrl ? `
-            <div class="recipe-video">
-              <h2>Video Tutorial</h2>
-              <a href="${recipe.videoUrl}" target="_blank">Watch Video</a>
-            </div>
-            ` : ''}
-            
-            <button class="chef-btn" onclick="window.location.href='chef-profile.html?chefId=${recipe.chefId || ''}'">
-              Visit Chef's Page
-            </button>
-          `;
-        })
-        .catch(error => {
-          console.error('Error getting recipe:', error);
-          document.getElementById('recipe-details').innerHTML = `
-            <div class="error">Failed to load recipe. Please try again later.</div>
-          `;
-        });
-    });
-  </script>
-</body>
-
-</html>
+          const container = document.getElementById('recipe-details');
+          container.innerHTML = `
+            <h1 class="title">${recipe.title}</h1>
+            <img class="recipe-image" src="${recipe.imageUrl}" alt="${recipe.title}">
+            <p class="chef">By ${recipe.chefName}</p>
+            <div class="section"><h3>Description</h3><p>${recipe.description}</p></div>
+            <div class="section"><h3>Preparation</h3><p>${recipe.preparation}</p></div>
+            <div class="section"><h3>Video</h3>${ recipe.videoUrl ? `<iframe class="video" src="${recipe.videoUrl}" allowfullscreen></iframe>` : `<p>No video available</p>` }</div>\n            <div class=\"actions\">\n              <button onclick=\"handleSupport()\">Support the Chef</button>\n              <button onclick=\"handleChat()\">Chat</button>\n              <button onclick=\"goToChefPage()\">View Chef's Page</button>\n            </div>\n          `;
+        } else {\n          alert('Recipe not found');\n        }\n      }).catch(error => {\n        console.error('Error fetching recipe:', error);\n      });\n    } else {\n      alert('No recipe ID provided');\n    }\n\n    function handleSupport() {\n      alert('Please sign in to support the chef.');\n    }\n    function handleChat() {\n      alert('Please sign in to join the chat.');\n    }\n    function goToChefPage() {\n      // يمكنك تعديل هذا الرابط ليأخذ معرّف الشيف من البيانات\n      window.location.href = 'chef-profile.html';\n    }\n  </script>\n  <script src=\"https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js\"></script>\n  <script src=\"https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js\"></script>\n  <script src=\"firebase-config.js\"></script>\n</body>\n</html>
 
 
